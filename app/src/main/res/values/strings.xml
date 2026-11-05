@@ -1,0 +1,160 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Shell texts for this app -->
+    <string name="settings_subtitle">Month view, new events, reminders and privacy</string>
+    <string name="app_lock_subtitle">Ask for an app PIN (and optionally your fingerprint) when opening DateCtrl. Reminders still show, without the event on the lock screen if your phone hides private notification content.</string>
+    <string name="app_lock_footer">DateCtrl works fully offline: it has no internet permission, analytics or tracking. Your events stay in your phone\'s calendar storage; calendars from accounts sync only through their own apps.</string>
+    <string name="lock_prompt_subtitle">Your calendar</string>
+    <string name="lock_forgot_body">The PIN can\'t be recovered. DateCtrl will reset its own settings and turn the app lock off. Your calendars and events are not deleted.</string>
+
+    <!-- Tabs -->
+    <string name="tab_month">Month</string>
+    <string name="tab_agenda">Agenda</string>
+    <string name="tab_calendars">Calendars</string>
+
+    <!-- Permission -->
+    <string name="perm_title">Allow access to your calendar</string>
+    <string name="perm_body">DateCtrl shows and edits the events in your phone\'s calendar storage, and shows their reminders. Nothing leaves the phone.</string>
+    <string name="perm_body_settings">Calendar access is turned off for DateCtrl. Turn on Calendar (and Notifications for reminders) in the app\'s permissions.</string>
+    <string name="perm_allow">Allow</string>
+    <string name="perm_open_settings">Open app settings</string>
+
+    <!-- Month and agenda -->
+    <string name="today">Today</string>
+    <string name="tomorrow">Tomorrow</string>
+    <string name="yesterday">Yesterday</string>
+    <string name="new_event">New event</string>
+    <string name="previous_day">Previous day</string>
+    <string name="next_day">Next day</string>
+    <string name="no_events_day">Nothing on this day</string>
+    <string name="search_events">Search events</string>
+    <string name="no_upcoming">No upcoming events</string>
+    <string name="no_upcoming_body">Nothing in the next %1$d months in the calendars you show.</string>
+    <string name="no_results">No events found</string>
+    <string name="no_results_body">Nothing matches in the next %1$d months. Show more months to search further.</string>
+    <string name="show_more_months">Show 12 more months</string>
+    <string name="all_day">All day</string>
+    <string name="no_title">(No title)</string>
+
+    <!-- Event -->
+    <string name="event">Event</string>
+    <string name="edit">Edit</string>
+    <string name="delete">Delete</string>
+    <string name="calendar">Calendar</string>
+    <string name="repeat">Repeat</string>
+    <string name="location">Location</string>
+    <string name="description">Description</string>
+    <string name="reminders">Reminders</string>
+    <string name="no_reminders">No reminder</string>
+    <string name="guests">Guests (%1$d)</string>
+    <string name="guest_organizer">Organiser</string>
+    <string name="guest_yes">Going</string>
+    <string name="guest_no">Not going</string>
+    <string name="guest_maybe">Maybe</string>
+    <string name="read_only_event">This event is in a calendar you can\'t change from this phone.</string>
+    <string name="no_map_app">No maps app on this phone can show the place</string>
+    <string name="event_missing">This event doesn\'t exist any more</string>
+    <string name="event_missing_body">It was deleted, or the calendar it was in is gone.</string>
+    <string name="delete_event_title">Delete this event?</string>
+    <string name="delete_event_body">\"%1$s\" is deleted from its calendar. Calendars from accounts delete it everywhere they sync.</string>
+    <string name="delete_repeating">Delete a repeating event</string>
+    <string name="edit_repeating">Change a repeating event</string>
+    <string name="scope_this">Only this event</string>
+    <string name="scope_all">All events in the series</string>
+    <string name="delete_failed">Couldn\'t delete it</string>
+
+    <!-- Editor -->
+    <string name="edit_event">Edit event</string>
+    <string name="title_hint">Title</string>
+    <string name="when_label">When</string>
+    <string name="starts">Starts</string>
+    <string name="ends">Ends</string>
+    <string name="end_before_start">The end is before the start</string>
+    <string name="repeat_never">Doesn\'t repeat</string>
+    <string name="repeat_daily">Every day</string>
+    <string name="repeat_weekly">Every week</string>
+    <string name="repeat_weekly_on">Every week on %1$s</string>
+    <string name="repeat_monthly">Every month</string>
+    <string name="repeat_monthly_on">Every month on day %1$d</string>
+    <string name="repeat_yearly">Every year</string>
+    <string name="repeat_custom">Custom repeat</string>
+    <string name="repeat_custom_keep">Keep the custom repeat</string>
+    <string name="add_reminder">Add reminder</string>
+    <string name="remove_reminder">Remove reminder</string>
+    <string name="reminder_at_time">At the time of the event</string>
+    <string name="local_calendar_name">My calendar</string>
+    <string name="local_calendar_new">My calendar (made on this phone)</string>
+    <string name="save_failed">Couldn\'t save it</string>
+    <string name="discard_title">Discard changes?</string>
+    <string name="discard_body">What you changed in this event isn\'t saved.</string>
+    <string name="discard">Discard</string>
+    <string name="ok">OK</string>
+
+    <!-- Calendars -->
+    <string name="add_calendar">Add calendar</string>
+    <string name="edit_calendar">Edit calendar</string>
+    <string name="calendar_name">Calendar name</string>
+    <string name="delete_calendar">Delete calendar</string>
+    <string name="delete_calendar_title">Delete \"%1$s\"?</string>
+    <string name="on_this_phone">On this phone</string>
+    <string name="read_only">Read only</string>
+    <string name="no_calendars">No calendars</string>
+    <string name="no_calendars_body">Add a calendar on this phone, or add an account with a calendar (for example with DAVx⁵) in Android\'s settings.</string>
+    <string name="calendars_footer">Tap a calendar to show or hide its events. Calendars from accounts sync through the app that added the account; calendars on this phone stay only here and aren\'t backed up.</string>
+    <string name="accounts_settings">Accounts and sync</string>
+    <string name="no_app">No app on this phone can open that</string>
+
+    <!-- Reminders -->
+    <string name="ch_reminders">Event reminders</string>
+    <string name="ch_reminders_desc">Reminders for events in your calendars</string>
+    <string name="reminder_public">Event reminder</string>
+    <string name="snooze">Snooze</string>
+    <string name="dismiss">Dismiss</string>
+
+    <!-- Settings -->
+    <string name="week_starts">Week starts on</string>
+    <string name="week_phone">Phone\'s setting</string>
+    <string name="week_monday">Monday</string>
+    <string name="week_saturday">Saturday</string>
+    <string name="week_sunday">Sunday</string>
+    <string name="week_numbers">Week numbers</string>
+    <string name="week_numbers_sub">Show the week of the year next to each row</string>
+    <string name="group_new_events">New events</string>
+    <string name="default_calendar">Calendar</string>
+    <string name="default_length">Length</string>
+    <string name="default_reminder">Reminder</string>
+    <string name="show_reminders">Show reminders</string>
+    <string name="show_reminders_sub">Notifications when an event\'s reminder is due, with Snooze (10 minutes) and Dismiss</string>
+    <string name="reminder_sound">Reminder sound and pop-up</string>
+    <string name="reminder_sound_sub">In Android\'s notification settings</string>
+    <string name="reminders_footer">If another calendar app is still installed, turn its reminders off so you don\'t get each one twice.</string>
+
+    <plurals name="minutes_before">
+        <item quantity="one">%1$d minute before</item>
+        <item quantity="other">%1$d minutes before</item>
+    </plurals>
+    <plurals name="hours_before">
+        <item quantity="one">%1$d hour before</item>
+        <item quantity="other">%1$d hours before</item>
+    </plurals>
+    <plurals name="days_before">
+        <item quantity="one">%1$d day before</item>
+        <item quantity="other">%1$d days before</item>
+    </plurals>
+    <plurals name="weeks_before">
+        <item quantity="one">%1$d week before</item>
+        <item quantity="other">%1$d weeks before</item>
+    </plurals>
+    <plurals name="minutes">
+        <item quantity="one">%1$d minute</item>
+        <item quantity="other">%1$d minutes</item>
+    </plurals>
+    <plurals name="hours">
+        <item quantity="one">%1$d hour</item>
+        <item quantity="other">%1$d hours</item>
+    </plurals>
+    <plurals name="delete_calendar_body">
+        <item quantity="one">The calendar and its %1$d event are deleted from this phone. This can\'t be undone.</item>
+        <item quantity="other">The calendar and its %1$d events are deleted from this phone. This can\'t be undone.</item>
+    </plurals>
+</resources>
