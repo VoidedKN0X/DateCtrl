@@ -31,14 +31,11 @@ jobs:
           cache-disabled: true
 
       - name: Write verification metadata
-        # No secrets here: the release build is debug-signed in this job (CI=false lets the build script
-        # fall back to the debug key). Only the downloads matter; nothing is published.
-        env:
-          CI: "false"
-          GITHUB_ACTIONS: "false"
+        # No secrets here: without CI and GITHUB_ACTIONS the build script signs the release build with the
+        # debug key instead of refusing. Only the downloads matter; nothing from this job is published.
         run: |
           chmod +x gradlew
-          ./gradlew --no-daemon --write-verification-metadata sha256 assembleDebug assembleRelease
+          env -u CI -u GITHUB_ACTIONS ./gradlew --no-daemon --write-verification-metadata sha256 assembleDebug assembleRelease
 
       - name: Print the file
         run: |

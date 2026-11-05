@@ -49,9 +49,11 @@ jobs:
           build-mode: manual
 
       - name: Build (debug, no secrets)
+        # Without CI and GITHUB_ACTIONS the build script doesn't ask for the release signing key,
+        # which this job never gets.
         run: |
           chmod +x gradlew
-          ./gradlew --no-daemon assembleDebug
+          env -u CI -u GITHUB_ACTIONS ./gradlew --no-daemon assembleDebug
 
       - uses: github/codeql-action/analyze@33d7b85da1a04171e211befe2c739303b9a4c066 # v4.39.3
         with:
