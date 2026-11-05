@@ -4,6 +4,14 @@ What changed in each DateCtrl release. Every release on the [Releases page](http
 
 To publish a new version: bump `versionCode` and `versionName` in `app/build.gradle.kts`, add a section here, and push to `main`. Pushes without a version bump only build; they don't make a release.
 
+## v0.1.4 (2026-11-05)
+
+Confirmations are readable by accessibility apps again.
+
+### Fixed
+
+- "Can't be undone" confirmations (such as deleting an event or a calendar) can be read again by apps that use accessibility, such as automation apps. 0.1.3 hid them from those apps; now only the lock screen, the PIN screens and "Forgot PIN?" are hidden from them. Other apps' floating windows are still kept off these confirmations, and screen readers such as TalkBack keep working everywhere.
+
 ## v0.1.3 (2026-11-05)
 
 A security update for the app lock and for requests from other apps. Nothing changes in how you use DateCtrl.

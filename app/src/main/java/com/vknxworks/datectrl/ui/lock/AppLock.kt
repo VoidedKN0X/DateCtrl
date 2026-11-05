@@ -489,7 +489,7 @@ private fun PinLockScreen() {
             onDismissRequest = { forgetting = false },
             title = { Text(stringResource(R.string.lock_forgot_title)) },
             text = {
-                SensitiveWindowEffect()
+                SensitiveWindowEffect(sensitiveData = true)
                 Text(stringResource(R.string.lock_forgot_body))
             },
             confirmButton = {

@@ -403,7 +403,7 @@ fun ConfirmDialog(title: String, body: String, confirm: String, onDismiss: () ->
         onDismissRequest = onDismiss,
         title = { Text(title, style = MaterialTheme.typography.titleLarge) },
         text = {
-            // A destructive confirmation: no overlays from other apps over it, hidden from non-accessibility tools.
+            // A destructive confirmation: no overlays from other apps over it.
             SensitiveWindowEffect()
             Text(body, style = MaterialTheme.typography.bodyMedium)
         },
