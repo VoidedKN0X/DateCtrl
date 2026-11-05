@@ -3,7 +3,6 @@ package com.vknxworks.datectrl.ui.lock
 import android.app.Activity
 import android.content.Context
 import android.content.ContextWrapper
-import android.os.Build
 import android.view.View
 import android.view.ViewParent
 import android.view.Window
@@ -47,12 +46,10 @@ object SensitiveWindow {
 
     private fun apply(window: Window, c: IntArray) {
         runCatching { window.setHideOverlayWindows(c[0] > 0) }
-        if (Build.VERSION.SDK_INT >= 34) {
-            runCatching {
-                window.decorView.setAccessibilityDataSensitive(
-                    if (c[1] > 0) View.ACCESSIBILITY_DATA_SENSITIVE_YES else View.ACCESSIBILITY_DATA_SENSITIVE_AUTO,
-                )
-            }
+        runCatching {
+            window.decorView.setAccessibilityDataSensitive(
+                if (c[1] > 0) View.ACCESSIBILITY_DATA_SENSITIVE_YES else View.ACCESSIBILITY_DATA_SENSITIVE_AUTO,
+            )
         }
     }
 }

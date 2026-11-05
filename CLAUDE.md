@@ -17,7 +17,7 @@ Calendar app (month, agenda, events, reminders) in the VKNXWorks Ctrl series. Ko
 - **Telemetry-free:** no analytics or crash reporting.
 - arm64-v8a only. Every user-facing string goes in `strings.xml` (shared Ctrl strings in `strings_ctrl.xml`).
 - Settings open only from the profile picture. No settings tab, menu or gear icon, no You tab.
-- Must work as a normal user app on any ROM (Android 13+), not only when built into the system.
+- Must work as a normal user app on any ROM (Android 15+), not only when built into the system.
 - All-day events are stored in UTC (midnight to midnight); timed events in their own time zone. Repeating events use DURATION, never DTEND.
 - Only write columns that changed, and never write to calendars without contributor access. Delete and rename only calendars of `ACCOUNT_TYPE_LOCAL`.
 - Notification actions go through the non-exported `ReminderActionReceiver` with immutable PendingIntents.

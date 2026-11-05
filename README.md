@@ -2,7 +2,7 @@
 
 **A private, offline calendar app that replaces your phone's calendar.**
 
-[![Latest release](https://img.shields.io/github/v/release/VoidedKN0X/DateCtrl?label=download)](https://github.com/VoidedKN0X/DateCtrl/releases/latest) ![Android 13+](https://img.shields.io/badge/Android-13%2B-3DDC84?logo=android&logoColor=white) [![License: GPL-3.0](https://img.shields.io/badge/license-GPL--3.0-blue)](LICENSE) ![Telemetry-free](https://img.shields.io/badge/telemetry-none-brightgreen) ![Offline](https://img.shields.io/badge/internet-none-brightgreen) [![Sponsor](https://img.shields.io/badge/sponsor-GitHub-ea4aaa?logo=githubsponsors&logoColor=white)](https://github.com/sponsors/VoidedKN0X)
+[![Latest release](https://img.shields.io/github/v/release/VoidedKN0X/DateCtrl?label=download)](https://github.com/VoidedKN0X/DateCtrl/releases/latest) ![Android 15+](https://img.shields.io/badge/Android-15%2B-3DDC84?logo=android&logoColor=white) [![License: GPL-3.0](https://img.shields.io/badge/license-GPL--3.0-blue)](LICENSE) ![Telemetry-free](https://img.shields.io/badge/telemetry-none-brightgreen) ![Offline](https://img.shields.io/badge/internet-none-brightgreen) [![Sponsor](https://img.shields.io/badge/sponsor-GitHub-ea4aaa?logo=githubsponsors&logoColor=white)](https://github.com/sponsors/VoidedKN0X)
 
 DateCtrl shows and edits the events in your phone's calendar storage: calendars on the phone itself and from your accounts (DAVx⁵, Exchange and others that sync through their own apps). Month view, an agenda with search, repeating events, reminders as notifications, and "Add to calendar" for other apps. It never goes online and keeps no copy of your events of its own.
 
@@ -25,7 +25,7 @@ Part of the [Ctrl series](#the-ctrl-series) by VKNXWorks.
 
 ## Requirements
 
-- Android 13 or newer, on a 64-bit ARM phone (nearly every phone from the last several years)
+- Android 15 or newer, on a 64-bit ARM phone (nearly every phone from the last several years)
 - Works on any Android ROM as a normal app: stock Android, LineageOS, GrapheneOS, CalyxOS, /e/OS and the phone makers' own systems. It doesn't need root or to be built into the system.
 - **Google-free and de-Googled:** no Google Play services, Firebase or other Google libraries, and the app never contacts Google.
 
@@ -42,7 +42,7 @@ Part of the [Ctrl series](#the-ctrl-series) by VKNXWorks.
 
 If the Obtainium button doesn't open the app, add `https://github.com/VoidedKN0X/DateCtrl` in Obtainium by hand.
 
-**Use it as your calendar app:** Android opens events and "Add to calendar" in DateCtrl; if another calendar app is installed, Android may ask which app to use the first time. Turn reminders off in your old calendar app so you don't get each one twice. To sync a calendar with a server, add the account with a sync app such as DAVx⁵; DateCtrl shows it straight away. DateCtrl works as a normal app on any Android 13+ ROM; it doesn't need to be built into the system.
+**Use it as your calendar app:** Android opens events and "Add to calendar" in DateCtrl; if another calendar app is installed, Android may ask which app to use the first time. Turn reminders off in your old calendar app so you don't get each one twice. To sync a calendar with a server, add the account with a sync app such as DAVx⁵; DateCtrl shows it straight away. DateCtrl works as a normal app on any Android 15+ ROM; it doesn't need to be built into the system.
 
 ## Getting started
 
