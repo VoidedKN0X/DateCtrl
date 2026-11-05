@@ -1,0 +1,32 @@
+name: Workflow security (zizmor)
+
+# Static checks of the GitHub Actions workflows: unpinned actions, credential leaks, template
+# injection, excessive permissions. Offline, so it needs no token.
+on:
+  push:
+    branches: [main]
+    paths:
+      - ".github/**"
+  workflow_dispatch:
+
+permissions: {}
+
+jobs:
+  zizmor:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          persist-credentials: false
+
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5.6.0
+        with:
+          python-version: "3.12"
+
+      - name: Install zizmor (pinned by hash)
+        run: pip install --require-hashes -r .github/zizmor-requirements.txt
+
+      - name: Check the workflows
+        run: zizmor --offline .github/workflows
