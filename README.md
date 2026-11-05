@@ -64,6 +64,8 @@ Settings and About are behind your profile picture at the top right of every tab
   ```
 
   Advanced users can check it with [AppVerifier](https://github.com/soupslurpr/AppVerifier).
+- **Check a download.** Every release lists the APK's SHA-256 in its release notes, so you can compare it with `sha256sum DateCtrl-vX.Y.Z.apk`. Each release APK also has a signed build provenance attestation: with the [GitHub CLI](https://cli.github.com/), `gh attestation verify DateCtrl-vX.Y.Z.apk -R VoidedKN0X/DateCtrl` proves it was built by this repo's build workflow from the tagged commit. The signing certificate check above still applies.
+- **Checked dependencies and workflows.** Every library and Gradle plugin the build downloads is checked against the SHA-256 in [`gradle/verification-metadata.xml`](gradle/verification-metadata.xml), so a changed download fails the build. The workflows are checked with [zizmor](https://docs.zizmor.sh/), each job gets only the permissions it needs, and every action is pinned to a commit. [CodeQL](https://codeql.github.com/) scans the code every week.
 
 **Permissions.** DateCtrl has **no internet permission**: it can't go online at all. It asks only for what it needs, when it needs it:
 
@@ -73,6 +75,7 @@ Settings and About are behind your profile picture at the top right of every tab
 | Add or change calendar events (`WRITE_CALENDAR`) | Saving the events and calendars you add, change or delete, and marking reminders as shown, snoozed or dismissed. |
 | Notifications (`POST_NOTIFICATIONS`) | Event reminders. |
 | Use biometric hardware (`USE_BIOMETRIC`) | Optional fingerprint unlock for the app lock. |
+| Hide other apps' floating windows (`HIDE_OVERLAY_WINDOWS`) | Hide other apps' floating windows over the PIN screen (and the app lock's other screens and delete confirmations), so nothing can be drawn over them. Granted at install, no prompt. |
 
 Android also lists a "dynamic receiver" permission (`DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION`) that AndroidX adds to every app so only DateCtrl itself can send it internal broadcasts; it gives the app no access to anything. DateCtrl has no internet, location, contacts, storage, microphone or camera permissions.
 
@@ -122,6 +125,8 @@ You need [Android Studio](https://developer.android.com/studio), or JDK 17 and t
 3. The APK is in `app/build/outputs/apk/debug/`. Copy it to your phone and install it.
 
 Or open the folder in Android Studio and press **Run** with your phone connected.
+
+**Dependency verification.** Gradle checks every library and plugin it downloads against the SHA-256 checksums in `gradle/verification-metadata.xml`, and the build fails if one doesn't match or is missing. When you add or update a dependency or plugin, run the **Dependency verification metadata** workflow (Actions tab, *Run workflow*), decode the file from its log (between the BEGIN and END markers: `base64 -d | gunzip`), check the diff and commit it together with the dependency change.
 
 ## Support the project
 

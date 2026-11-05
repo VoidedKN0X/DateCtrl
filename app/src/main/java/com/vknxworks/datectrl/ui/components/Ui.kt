@@ -1,6 +1,7 @@
 package com.vknxworks.datectrl.ui.components
 
 import androidx.compose.foundation.background
+import com.vknxworks.datectrl.ui.lock.SensitiveWindowEffect
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -401,7 +402,11 @@ fun ConfirmDialog(title: String, body: String, confirm: String, onDismiss: () ->
     CtrlAlertDialog(
         onDismissRequest = onDismiss,
         title = { Text(title, style = MaterialTheme.typography.titleLarge) },
-        text = { Text(body, style = MaterialTheme.typography.bodyMedium) },
+        text = {
+            // A destructive confirmation: no overlays from other apps over it, hidden from non-accessibility tools.
+            SensitiveWindowEffect()
+            Text(body, style = MaterialTheme.typography.bodyMedium)
+        },
         confirmButton = { TextButton(onClick = onConfirm) { Text(confirm, color = CtrlColors.Error) } },
         dismissButton = { TextButton(onClick = onDismiss) { Text(stringResource(R.string.cancel), color = CtrlColors.Text) } },
     )

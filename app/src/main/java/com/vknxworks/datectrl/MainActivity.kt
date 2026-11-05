@@ -14,6 +14,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.vknxworks.datectrl.ui.lock.AppLockGate
+import com.vknxworks.datectrl.ui.lock.SensitiveWindowEffect
 import com.vknxworks.datectrl.ui.lock.lockCovering
 import com.vknxworks.datectrl.ui.nav.AppRoot
 import com.vknxworks.datectrl.ui.theme.DateCtrlTheme
@@ -61,6 +62,9 @@ fun CtrlWindow(activity: ComponentActivity, content: @Composable () -> Unit) {
         else activity.window.clearFlags(WindowManager.LayoutParams.FLAG_SECURE)
         activity.setRecentsScreenshotEnabled(!blankRecents)
     }
+    // While a lock or PIN screen covers the app: no other apps' overlays on top, and hidden from apps that
+    // misuse accessibility (real screen readers still work). The rest of the app is unaffected.
+    SensitiveWindowEffect(enabled = lockCovering(c.vault))
     DateCtrlTheme(dark) {
         AppLockGate { content() }
     }

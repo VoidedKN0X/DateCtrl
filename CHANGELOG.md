@@ -4,6 +4,22 @@ What changed in each DateCtrl release. Every release on the [Releases page](http
 
 To publish a new version: bump `versionCode` and `versionName` in `app/build.gradle.kts`, add a section here, and push to `main`. Pushes without a version bump only build; they don't make a release.
 
+## v0.1.3 (2026-11-05)
+
+A security update for the app lock and for requests from other apps. Nothing changes in how you use DateCtrl.
+
+### Security
+
+- **No floating windows over the app lock.** While the lock screen, a PIN screen (turning the lock on or off, changing the PIN), "Forgot PIN?" or a delete or reset confirmation is showing, other apps' floating windows (chat heads, bubbles, overlays) are hidden on top of DateCtrl (Android 12 and newer), so no app can draw over the PIN pad or trick you into tapping a button. They come back as soon as that screen closes, and everywhere else in the app they keep working. This uses a new permission, "Hide other apps' floating windows", which Android grants at install without asking.
+- **Lock and PIN screens are hidden from apps that misuse accessibility.** On Android 14 and newer, the same screens are marked sensitive, so only real accessibility tools such as screen readers (TalkBack) can read them, not other apps that use the accessibility API to watch the screen.
+- **Stricter requests from other apps.** On Android 16 and newer, other apps can only open DateCtrl in the ways it offers (the launcher, opening an event or a day, "Add to calendar" and "Edit event"). A request aimed directly at a part of DateCtrl that doesn't accept it is now refused by Android.
+
+### Project
+
+- **Check a download:** the release notes now list the APK's SHA-256 checksum, and the APK has a signed build provenance attestation: `gh attestation verify DateCtrl-v0.1.3.apk -R VoidedKN0X/DateCtrl` proves it was built by this repo's build workflow from the tagged commit. The signing certificate fingerprint in the README still applies.
+- **Checked dependencies:** the build now checks every library and Gradle plugin it downloads against the SHA-256 checksums in `gradle/verification-metadata.xml`, and stops if one doesn't match.
+- README: the new permission is in the permissions table, with a "Check a download" note and how dependency verification works.
+
 ## Project updates (2026-11-05)
 
 ### Project
