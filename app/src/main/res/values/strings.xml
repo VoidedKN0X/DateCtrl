@@ -5,7 +5,10 @@
     <string name="app_lock_subtitle">Ask for an app PIN (and optionally your fingerprint) when opening DateCtrl. Reminders still show, without the event on the lock screen if your phone hides private notification content.</string>
     <string name="app_lock_footer">DateCtrl works fully offline: it has no internet permission, analytics or tracking. Your events stay in your phone\'s calendar storage; calendars from accounts sync only through their own apps.</string>
     <string name="lock_prompt_subtitle">Your calendar</string>
-    <string name="lock_forgot_body">The PIN can\'t be recovered. DateCtrl will reset its own settings and turn the app lock off. Your calendars and events are not deleted.</string>
+    <string name="lock_forgot_body">The PIN can\'t be recovered. DateCtrl will reset its own settings and turn the app lock off. Your calendars and events are not deleted. If your phone has a screen lock, you\'ll confirm with it first.</string>
+    <string name="lock_reset_prompt_title">Reset DateCtrl\'s app lock</string>
+    <string name="lock_reset_prompt_subtitle">Use your phone\'s screen lock to confirm it\'s you</string>
+    <string name="lock_reset_prompt_failed">Couldn\'t show the screen lock prompt</string>
 
     <!-- Tabs -->
     <string name="tab_month">Month</string>

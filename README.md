@@ -87,7 +87,7 @@ Turn it on under **Settings > Privacy and security > App lock** (tap your profil
 - **The PIN is never stored.** It's stretched with 600,000 rounds of PBKDF2 and mixed with a key held in the phone's secure hardware.
 - **Wrong PINs:** after 5 tries you wait 30 seconds, doubling up to 15 minutes. Restarting the app or the phone, or changing the clock, doesn't skip the wait.
 - **Lock again:** as soon as you leave the app (the default), after 1, 5 or 15 minutes or 1 hour away, or only when the app restarts.
-- **Forgot your PIN?** It can't be recovered. The lock screen offers to reset DateCtrl's own settings and turn the lock off. Your calendars and events are not deleted: they belong to your phone's calendar storage, not to DateCtrl.
+- **Forgot your PIN?** It can't be recovered. The lock screen offers to reset DateCtrl's own settings and turn the lock off, after you confirm with your phone's own screen lock (PIN, pattern, password or fingerprint), so someone holding your unlocked phone can't simply reset it. On a phone without a screen lock the reset needs no confirmation. Your calendars and events are not deleted: they belong to your phone's calendar storage, not to DateCtrl.
 
 **Hide in screenshots** and **Hide in recent apps** (both off by default): the first keeps DateCtrl out of screenshots and screen recordings, the second shows a blank card in the recent-apps view while screenshots still work. With the app lock on, the recent-apps view always shows a blank card.
 
