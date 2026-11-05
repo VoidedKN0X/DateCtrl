@@ -4,6 +4,24 @@ What changed in each DateCtrl release. Every release on the [Releases page](http
 
 To publish a new version: bump `versionCode` and `versionName` in `app/build.gradle.kts`, add a section here, and push to `main`. Pushes without a version bump only build; they don't make a release.
 
+## v0.1.1 (2026-11-05)
+
+A small security update. Events, calendars, settings and the app lock are unchanged.
+
+### Security
+
+- **Reminders can't be set off early by another app.** Android's "a reminder is due" message can be sent by any app, and DateCtrl trusted the time in it. Another app could have used a time far in the future to make DateCtrl show every upcoming reminder at once and mark them as shown, so they wouldn't have come at the right time. DateCtrl now only looks for reminders that are due now (or within the next minute), whatever time the message names.
+
+### Privacy
+
+- **No debug logging in release builds.** Debug, verbose and info messages from the libraries DateCtrl uses are now stripped from the app, so nothing can end up in the phone's system log. DateCtrl's own code already logged nothing.
+
+### Project
+
+- The build now also checks that the Gradle wrapper is an official Gradle release before building.
+- `.gitignore` also covers `google-services.json`, so it can't be committed by accident.
+- README: every permission in the app is listed with its Android name and what it's for, including the "dynamic receiver" permission AndroidX adds, and the Ctrl series list now has all 28 apps.
+
 ## v0.1.0 (2026-11-05)
 
 The first release of DateCtrl: a private, offline calendar app in the Ctrl series, made to replace your phone's calendar app on any Android 13+ phone.

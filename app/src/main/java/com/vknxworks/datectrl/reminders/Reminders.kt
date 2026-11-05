@@ -118,11 +118,14 @@ object Reminders {
             CalendarAlerts.TITLE, CalendarAlerts.EVENT_LOCATION, CalendarAlerts.ALL_DAY,
         )
         val now = System.currentTimeMillis()
+        // EVENT_REMINDER can be sent by any app, so the time in it is only trusted up to a minute ahead: a made-up
+        // time far in the future must not show (and mark as shown) reminders that aren't due yet.
+        val upTo = minOf(maxOf(alarmTime, now), now + 60_000L)
         val due = ArrayList<Pair<Long, Reminder>>()
         resolver.query(
             CalendarAlerts.CONTENT_URI, proj,
             "${CalendarAlerts.STATE}=? AND ${CalendarAlerts.ALARM_TIME}<=?",
-            arrayOf(CalendarAlerts.STATE_SCHEDULED.toString(), maxOf(alarmTime, now).toString()),
+            arrayOf(CalendarAlerts.STATE_SCHEDULED.toString(), upTo.toString()),
             "${CalendarAlerts.BEGIN} ASC",
         )?.use { c ->
             while (c.moveToNext()) {

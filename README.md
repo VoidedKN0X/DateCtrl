@@ -56,7 +56,7 @@ Settings and About are behind your profile picture at the top right of every tab
 ## Is it safe to install?
 
 - **Open source.** All of DateCtrl's code is in this repo, under the GPL-3.0 licence. Anyone can read it.
-- **Built by GitHub, not on a personal computer.** Every release on the Releases page is built by [the build workflow](.github/workflows/build.yml) on GitHub Actions, straight from the code in this repo. Each build also checks that the app has no network permission and no Google libraries.
+- **Built by GitHub, not on a personal computer.** Every release on the Releases page is built by [the build workflow](.github/workflows/build.yml) on GitHub Actions, straight from the code in this repo. Each build also checks that the Gradle wrapper is an official Gradle release, that the app has no network permission and that it has no Google libraries.
 - **Always signed with the same key.** Android refuses to install an update signed with a different key over DateCtrl, and the CtrlF-Droid repo only accepts APKs signed with this key. The SHA-256 fingerprint of DateCtrl's signing certificate is:
 
   ```
@@ -69,9 +69,12 @@ Settings and About are behind your profile picture at the top right of every tab
 
 | Permission | What DateCtrl uses it for |
 | --- | --- |
-| Read and change your calendar | Showing your events and calendars, and saving the events and calendars you add, change or delete. |
-| Notifications | Event reminders. |
-| Use biometric hardware | Optional fingerprint unlock for the app lock. |
+| Read your calendar (`READ_CALENDAR`) | Showing your events and calendars, and the reminders that are due. |
+| Add or change calendar events (`WRITE_CALENDAR`) | Saving the events and calendars you add, change or delete, and marking reminders as shown, snoozed or dismissed. |
+| Notifications (`POST_NOTIFICATIONS`) | Event reminders. |
+| Use biometric hardware (`USE_BIOMETRIC`) | Optional fingerprint unlock for the app lock. |
+
+Android also lists a "dynamic receiver" permission (`DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION`) that AndroidX adds to every app so only DateCtrl itself can send it internal broadcasts; it gives the app no access to anything. DateCtrl has no internet, location, contacts, storage, microphone or camera permissions.
 
 See [Privacy](#privacy) for what happens to your data.
 
@@ -152,6 +155,7 @@ Native Android apps for self-hosted services and everyday tools, all with the sa
 | [PaperCtrl](https://github.com/VoidedKN0X/PaperCtrl) | Scan and browse documents on Paperless-ngx |
 | [PrintCtrl](https://github.com/VoidedKN0X/PrintCtrl) | Bambu Lab printers through Bambuddy, and Spoolman spools |
 | [ProxCtrl](https://github.com/VoidedKN0X/ProxCtrl) | Manage your Proxmox VE server |
+| [RecorderCtrl](https://github.com/VoidedKN0X/RecorderCtrl) | Private, offline voice recorder |
 | [RideCtrl](https://github.com/VoidedKN0X/RideCtrl) | Offline maintenance, fuel and mod log for your vehicles |
 | [SeerrCtrl](https://github.com/VoidedKN0X/SeerrCtrl) | Request movies and shows on Seerr / Jellyseerr |
 | [SumCtrl](https://github.com/VoidedKN0X/SumCtrl) | Offline calculator, unit converter and work tools |
