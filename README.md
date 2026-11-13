@@ -20,6 +20,8 @@ Part of the [Ctrl series](#the-ctrl-series) by VKNXWorks.
 - **Reminders** as notifications with Snooze (10 minutes) and Dismiss; on the lock screen they show the event only when your phone allows private notification content
 - **Calendars:** show or hide each calendar, grouped by account; add, rename, recolour and delete calendars on this phone
 - **Works with other apps:** "Add to calendar" buttons, event links and "open this day" from widgets and other apps open DateCtrl
+- **Import and export .ics files:** import an .ics file (from the file picker, or opened or shared from another app) into the calendar you pick, after seeing what's in it, with events already in that calendar skipped; export a whole calendar or a date range as an .ics file, or share one event
+- **Agenda widget:** a resizable home-screen widget with the coming week's events, + to add one, updated when your events change and at midnight; it shows only "Locked" while the app lock is on
 - **App lock** with its own PIN and optional fingerprint unlock, and **Hide in screenshots** / **Hide in recent apps** (both off until you turn them on)
 - **Ctrl / Signal look**, shared by every Ctrl app: dark and light, following your phone's dark theme setting, high contrast, one violet accent, Space Grotesk and JetBrains Mono; landscape, tablet and foldable layouts
 
@@ -48,7 +50,8 @@ If the Obtainium button doesn't open the app, add `https://github.com/VoidedKN0X
 
 - **Month:** tap a day to see its events, swipe for other months, tap Today to come back. The + adds an event on the chosen day.
 - **Agenda:** scroll through what's coming up, or search by title or place.
-- **Calendars:** tap a calendar to show or hide it. The + adds a calendar on this phone; the pencil renames, recolours or deletes it.
+- **Calendars:** tap a calendar to show or hide it. The + adds a calendar on this phone; the pencil renames, recolours or deletes it. **Import events** and **Export events** at the bottom read and save .ics files.
+- **Widget:** long-press your home screen, choose Widgets, then DateCtrl's Agenda.
 - **Events:** tap an event for its details, then the pencil to change it or the bin to delete it.
 
 Settings and About are behind your profile picture at the top right of every tab.
@@ -101,6 +104,7 @@ Turn it on under **Settings > Privacy and security > App lock** (tap your profil
 - Events stay in Android's calendar storage, where your accounts' sync apps can see them; DateCtrl keeps no copy, its own files hold only its settings.
 - Calendars made in DateCtrl are only on this phone and aren't included in backups.
 - Opening a place in a maps app hands that app the place's text.
+- Exported .ics files hold your events as they are and go only where you save them; a shared event goes only to the app you pick. Importing reads only the file you pick or open with DateCtrl.
 - DateCtrl is left out of Android's cloud backup and its phone-to-phone transfer.
 - The Support, Report a bug, Source code and Licence links on the You page open in your browser, only when you tap them.
 

@@ -3,6 +3,8 @@ package com.vknxworks.datectrl
 import android.content.Context
 import com.vknxworks.datectrl.data.calendar.CalendarRepository
 import com.vknxworks.datectrl.data.calendar.EventDraft
+import com.vknxworks.datectrl.data.calendar.IcsStore
+import com.vknxworks.datectrl.widget.AgendaWidget
 import com.vknxworks.datectrl.data.lock.LockVault
 import com.vknxworks.datectrl.data.settings.AppSettings
 import com.vknxworks.datectrl.data.settings.SettingsRepository
@@ -22,6 +24,12 @@ class AppContainer(val context: Context) {
     val settings = SettingsRepository(context, appScope)
     val calendar = CalendarRepository(context, appScope)
 
+    /** Importing and exporting .ics files. */
+    val ics by lazy { IcsStore(context) }
+
+    /** The .ics link ImportActivity handed to MainActivity (checked by Android first); taken once. */
+    @Volatile var pendingImport: android.net.Uri? = null
+
     /** What another app (or a reminder notification) asked to open; the main screen picks it up. */
     val pending = MutableStateFlow<Launch?>(null)
 
@@ -37,10 +45,13 @@ class AppContainer(val context: Context) {
     suspend fun enableLock(pin: String) {
         AppLock.markUnlocked()
         withContext(Dispatchers.Default) { vault.setUp(pin) }
+        // The widget now shows only "Locked".
+        AgendaWidget.requestUpdate(context)
     }
 
     fun disableLock() {
         vault.disable()
+        AgendaWidget.requestUpdate(context)
     }
 
     /**
@@ -51,6 +62,7 @@ class AppContainer(val context: Context) {
         settings.update { AppSettings() }
         vault.disable()
         AppLock.markUnlocked()
+        AgendaWidget.requestUpdate(context)
     }
 
     fun onLocked() {

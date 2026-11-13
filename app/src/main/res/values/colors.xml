@@ -2,4 +2,12 @@
 <resources>
     <color name="window_bg">#FFF5F5F1</color>
     <color name="ic_bg">#FF121418</color>
+    <!-- Agenda widget: Ctrl / Signal surface, text and violet accent (light) -->
+    <color name="widget_bg">#FFFFFFFF</color>
+    <color name="widget_outline">#FFE2E2DC</color>
+    <color name="widget_row">#FFF5F5F1</color>
+    <color name="widget_text">#FF0B0B0D</color>
+    <color name="widget_muted">#FF5E5E66</color>
+    <color name="widget_accent">#FFB48CFF</color>
+    <color name="widget_on_accent">#FF0B0B0D</color>
 </resources>

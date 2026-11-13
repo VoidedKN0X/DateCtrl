@@ -9,6 +9,10 @@ Calendar app (month, agenda, events, reminders) in the VKNXWorks Ctrl series. Ko
 - `reminders/Reminders.kt`: EVENT_REMINDER receiver, CalendarAlerts → notifications, Snooze/Dismiss.
 - `Launch.kt`: VIEW events/<id> and time/<ms>, INSERT, EDIT. `EditActivity.kt`: add/edit for other apps (not single-task, so the caller gets the result).
 - `ui/month`, `ui/agenda`, `ui/calendars`: the three tabs. `ui/event`: details and the editor.
+- `data/ics/`: RFC 5545 reader (`IcsParser`, `IcsZones` for TZID/VTIMEZONE) and writer (`IcsWriter`), plain Kotlin with unit tests in `app/src/test`. Reading is bounded by `IcsLimits` (size, events, line length, nesting); nothing in a file is ever fetched. `data/calendar/IcsStore.kt`: import (skips UID+DTSTART duplicates, only adds) and export through CalendarContract. `ui/ics`: import/export screens and event sharing (FileProvider, cache/shared only).
+- `ImportActivity.kt`: takes .ics links from other apps (`requireContentUriPermissionFromCaller="read"`) and hands them to MainActivity, which only imports the link ImportActivity told it about.
+- `widget/`: the agenda widget (RemoteViews with `RemoteCollectionItems`), refreshed by a JobScheduler content trigger on the calendar storage, an inexact alarm after midnight and time/zone changes. The receiver is not exported. With the app lock on it shows only "Locked".
+- Unit tests: `gradlew testDebugUnitTest` (needs JDK 17, the build's toolchain).
 
 ## Hard rules
 

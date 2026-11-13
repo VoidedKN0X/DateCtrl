@@ -4,6 +4,19 @@ What changed in each DateCtrl release. Every release on the [Releases page](http
 
 To publish a new version: bump `versionCode` and `versionName` in `app/build.gradle.kts`, add a section here, and push to `main`. Pushes without a version bump only build; they don't make a release.
 
+## v0.2.0 (2026-11-13)
+
+Import and export .ics calendar files, and an agenda widget for your home screen.
+
+### New
+
+- **Import .ics files.** Calendars > Import events picks an .ics file, and other apps can open or share .ics files with DateCtrl (for example an invitation from your mail app or a file in your file manager). DateCtrl first shows what's in the file: how many events, their titles and times, and which ones are already in your calendar. Pick the calendar they go into, then tap Import. Times keep their own time zone (also in files from Outlook and other apps that name zones their own way), all-day events stay all-day, repeating events keep their repeat and skipped dates, changed occurrences of a repeating event are kept, and the file's display and sound alarms become reminders.
+- **No duplicates.** An event that's already in the calendar you import into (the same event, starting at the same time) is skipped, so importing the same file twice adds nothing. Importing only adds events: nothing in your calendars is changed or deleted.
+- **Safe with any file.** Files up to 8 MB and 5,000 events are read; anything bigger is refused or cut off with a note, and nothing in a file is ever fetched from the internet (DateCtrl still has no internet permission). Links from other apps are only opened when that app could read the file itself.
+- **Export .ics files.** Calendars > Export events saves a whole calendar, or only the events in a date range, as an .ics file wherever you choose. Repeating events, skipped dates, changed occurrences, reminders and time zones go into the file, in the standard format other calendar apps (and DateCtrl) import.
+- **Share an event.** The new share button on an event sends it as an .ics file to the app you pick, for example to mail it to someone. The file is only readable by that app, only for that share.
+- **Agenda widget.** A resizable home-screen widget with today's and the next six days' events from the calendars you show, in the Ctrl look (dark and light). Tap an event to open it in DateCtrl, the date to open today, or + to add an event. It updates by itself when your events change (also after a sync) and just after midnight. With the app lock on, it only shows "Locked".
+
 ## v0.1.6 (2026-11-12)
 
 ### Changed

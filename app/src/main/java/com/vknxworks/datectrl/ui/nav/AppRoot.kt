@@ -72,6 +72,8 @@ import com.vknxworks.datectrl.ui.calendars.CalendarsScreen
 import com.vknxworks.datectrl.ui.common.CalendarPermissionGate
 import com.vknxworks.datectrl.ui.event.EditScreen
 import com.vknxworks.datectrl.ui.event.EventScreen
+import com.vknxworks.datectrl.ui.ics.ExportScreen
+import com.vknxworks.datectrl.ui.ics.ImportScreen
 import com.vknxworks.datectrl.ui.month.MonthScreen
 import com.vknxworks.datectrl.ui.settings.SettingsScreen
 import java.time.Instant
@@ -136,6 +138,7 @@ private fun MainScaffold() {
                 navigator.navigate(EditRoute(prefill = true))
             }
             is Launch.Edit -> navigator.navigate(EditRoute(p.id, p.begin ?: 0L))
+            is Launch.Import -> navigator.navigate(ImportRoute(p.uri.toString()))
         }
     }
 
@@ -207,6 +210,8 @@ private fun AppNavHost(navController: NavHostController) {
         composable<SettingsRoute> { SettingsScreen() }
         composable<EventRoute> { val r = it.toRoute<EventRoute>(); Gate { EventScreen(r.id, r.begin, r.end) } }
         composable<EditRoute> { val r = it.toRoute<EditRoute>(); Gate { EditScreen(r.id, r.begin, r.day, r.prefill) } }
+        composable<ImportRoute> { val r = it.toRoute<ImportRoute>(); Gate { ImportScreen(r.uri) } }
+        composable<ExportRoute> { val r = it.toRoute<ExportRoute>(); Gate { ExportScreen(r.calendarId) } }
     }
 }
 

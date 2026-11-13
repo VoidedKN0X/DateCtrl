@@ -483,7 +483,7 @@ private fun setEndTime(d: EventDraft, t: LocalTime): EventDraft {
 }
 
 @Composable
-private fun DateDialog(initial: LocalDate, onDismiss: () -> Unit, onPick: (LocalDate) -> Unit) {
+internal fun DateDialog(initial: LocalDate, onDismiss: () -> Unit, onPick: (LocalDate) -> Unit) {
     val state = rememberDatePickerState(initialSelectedDateMillis = initial.toEpochDay() * DAY_MS)
     DatePickerDialog(
         onDismissRequest = onDismiss,

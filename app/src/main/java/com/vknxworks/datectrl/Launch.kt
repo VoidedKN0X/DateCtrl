@@ -27,6 +27,9 @@ sealed interface Launch {
 
     data class Edit(val id: Long, val begin: Long?) : Launch
 
+    /** Import the .ics file at [uri] (only ever set by ImportActivity, never straight from another app's intent). */
+    data class Import(val uri: Uri) : Launch
+
     companion object {
         private const val ITEM_EVENT = "vnd.android.cursor.item/event"
         private const val DIR_EVENT = "vnd.android.cursor.dir/event"

@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- The calendar's colour bar on an event row; tinted per event. -->
+<shape xmlns:android="http://schemas.android.com/apk/res/android" android:shape="rectangle">
+    <solid android:color="#FFFFFFFF" />
+    <corners android:radius="2dp" />
+    <size android:width="4dp" android:height="32dp" />
+</shape>

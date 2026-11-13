@@ -5,6 +5,7 @@ import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.ProcessLifecycleOwner
 import com.vknxworks.datectrl.ui.lock.AppLock
+import com.vknxworks.datectrl.widget.AgendaWidget
 
 class DateCtrlApp : Application() {
     lateinit var container: AppContainer
@@ -19,6 +20,8 @@ class DateCtrlApp : Application() {
                 AppLock.onForeground(container.vault.enabled, container.settings.settings.value.lockTimeout.millis)
                 // Back from another app: calendars may have synced meanwhile.
                 container.calendar.start()
+                // Keeps the agenda widget's refresh triggers set (they don't survive a restart of the phone).
+                AgendaWidget.requestUpdate(this@DateCtrlApp)
             }
 
             override fun onStop(owner: LifecycleOwner) {

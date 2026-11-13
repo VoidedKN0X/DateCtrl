@@ -27,6 +27,8 @@ import androidx.compose.material.icons.outlined.Layers
 import androidx.compose.material.icons.outlined.NotificationsNone
 import androidx.compose.material.icons.outlined.Place
 import androidx.compose.material.icons.outlined.Repeat
+import androidx.compose.material.icons.outlined.Share
+import com.vknxworks.datectrl.ui.ics.shareEvent
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -93,6 +95,9 @@ fun EventScreen(id: Long, begin: Long, end: Long) {
         ScreenTopBar(
             stringResource(R.string.event),
             actions = {
+                if (e != null) {
+                    CtrlSquareButton(Icons.Outlined.Share, stringResource(R.string.share_event), onClick = { scope.launch { shareEvent(context, e.id, e.title) } })
+                }
                 if (e != null && e.writable) {
                     CtrlSquareButton(Icons.Outlined.Delete, stringResource(R.string.delete), onClick = { askDelete = true }, tint = CtrlColors.Error)
                     CtrlSquareButton(Icons.Outlined.Edit, stringResource(R.string.edit), onClick = { nav.navigate(EditRoute(id, begin)) })

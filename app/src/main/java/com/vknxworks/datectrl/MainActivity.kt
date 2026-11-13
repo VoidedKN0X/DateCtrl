@@ -35,6 +35,14 @@ class MainActivity : ComponentActivity() {
     }
 
     private fun take(intent: Intent?) {
+        // An .ics file handed over by ImportActivity (after Android checked the sender could read it).
+        val expected = container.pendingImport
+        val shared = intent?.clipData?.takeIf { it.itemCount > 0 }?.getItemAt(0)?.uri
+        if (expected != null && shared == expected) {
+            container.pendingImport = null
+            container.pending.value = Launch.Import(expected)
+            return
+        }
         Launch.from(intent)?.let { container.pending.value = it }
     }
 }

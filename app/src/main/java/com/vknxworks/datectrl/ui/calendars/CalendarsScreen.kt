@@ -74,6 +74,19 @@ import com.vknxworks.datectrl.ui.theme.CtrlShapes
 import com.vknxworks.datectrl.ui.theme.CtrlType
 import com.vknxworks.datectrl.ui.theme.Gutter
 import kotlinx.coroutines.launch
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.material.icons.outlined.FileOpen
+import androidx.compose.material.icons.outlined.SaveAlt
+import com.vknxworks.datectrl.ui.components.Group
+import com.vknxworks.datectrl.ui.components.GroupRow
+import com.vknxworks.datectrl.ui.lock.AppLock
+import com.vknxworks.datectrl.ui.nav.ExportRoute
+import com.vknxworks.datectrl.ui.nav.ImportRoute
+import com.vknxworks.datectrl.ui.nav.LocalNavigator
+
+/** The file types the import picker offers (some file managers call .ics files "octet-stream"). */
+private val ICS_TYPES = arrayOf("text/calendar", "application/ics", "text/x-vcalendar", "application/octet-stream")
 
 /** Every calendar on the phone, by account: show or hide each one, and manage the ones on this phone. */
 @Composable
@@ -84,6 +97,10 @@ fun CalendarsScreen() {
     val calendars by c.calendar.calendars.collectAsStateWithLifecycle()
     var editing by remember { mutableStateOf<CalendarInfo?>(null) }
     var creating by remember { mutableStateOf(false) }
+    val nav = LocalNavigator.current
+    val importPicker = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->
+        if (uri != null) nav.navigate(ImportRoute(uri.toString()))
+    }
     val groups = remember(calendars) {
         calendars.groupBy { if (it.local) "" else it.accountName }.toSortedMap(compareBy<String> { it.isNotEmpty() }.thenBy { it.lowercase() })
     }
@@ -120,6 +137,21 @@ fun CalendarsScreen() {
                         CalendarRow(cal, divider = i > 0, onToggle = { c.calendar.setVisible(cal.id, it) }, onEdit = if (cal.local) ({ editing = cal }) else null)
                     }
                 }
+            }
+        }
+        item(key = "files") {
+            Group(stringResource(R.string.group_files), Modifier.padding(top = 8.dp)) {
+                GroupRow(
+                    stringResource(R.string.import_ics), stringResource(R.string.import_ics_sub), icon = Icons.Outlined.FileOpen, showChevron = true,
+                    onClick = {
+                        AppLock.expectReturn()
+                        if (runCatching { importPicker.launch(ICS_TYPES) }.isFailure) Toast.makeText(context, context.getString(R.string.no_app), Toast.LENGTH_SHORT).show()
+                    },
+                )
+                GroupRow(
+                    stringResource(R.string.export_ics), stringResource(R.string.export_ics_sub), icon = Icons.Outlined.SaveAlt, showChevron = true,
+                    onClick = if (calendars.isNotEmpty()) ({ nav.navigate(ExportRoute()) }) else null,
+                )
             }
         }
         item {

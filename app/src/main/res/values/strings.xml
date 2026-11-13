@@ -107,6 +107,51 @@
     <string name="accounts_settings">Accounts and sync</string>
     <string name="no_app">No app on this phone can open that</string>
 
+    <!-- Import and export (.ics files) -->
+    <string name="done">Done</string>
+    <string name="share">Share</string>
+    <string name="share_event">Share event</string>
+    <string name="share_failed">Couldn\'t share the event</string>
+    <string name="group_files">Import and export</string>
+    <string name="import_ics">Import events</string>
+    <string name="import_ics_sub">Add the events in an .ics file to one of your calendars</string>
+    <string name="export_ics">Export events</string>
+    <string name="export_ics_sub">Save a calendar, or the part of it in a date range, as an .ics file</string>
+    <string name="import_title">Import events</string>
+    <string name="import_failed">Couldn\'t read this file</string>
+    <string name="import_too_big">The file is larger than 8 MB. Split it into smaller files and import them one at a time.</string>
+    <string name="import_not_ics">This isn\'t an iCalendar (.ics) file.</string>
+    <string name="import_unreadable">The file couldn\'t be opened. It may have been moved or deleted.</string>
+    <string name="import_none">No events in this file</string>
+    <string name="import_none_body">The file has no events DateCtrl can add (tasks and other entries are left out).</string>
+    <string name="import_to">Add to</string>
+    <string name="import_no_calendar">No calendar you can add events to</string>
+    <string name="import_no_calendar_body">Add a calendar on this phone in the Calendars tab, then import again.</string>
+    <string name="import_footer">Events already in the calendar (same event and start) are skipped. Nothing in your calendars is changed or deleted.</string>
+    <string name="import_progress">Adding %1$d of %2$d…</string>
+    <string name="import_nothing_new">Everything is already in this calendar</string>
+    <string name="import_preview">In the file</string>
+    <string name="import_already">Already there</string>
+    <string name="export_title">Export events</string>
+    <string name="export_what">Events</string>
+    <string name="export_everything">The whole calendar</string>
+    <string name="export_range">Only a date range</string>
+    <string name="export_from">From</string>
+    <string name="export_to">Until</string>
+    <string name="export_button">Export</string>
+    <string name="export_running">Exporting…</string>
+    <string name="export_footer">Saves an iCalendar (.ics) file that other calendar apps can import. A repeating event with an occurrence in the range is saved with all its occurrences.</string>
+    <string name="export_nothing">No events to export</string>
+    <string name="export_failed">Couldn\'t save the file</string>
+    <string name="export_done_body">The file is where you saved it. It holds your events as they are, so keep it somewhere private.</string>
+
+    <!-- Agenda widget -->
+    <string name="widget_name">Agenda</string>
+    <string name="widget_description">Your next events, today and the coming days, with a button to add one</string>
+    <string name="widget_locked">Locked. Open DateCtrl to see your events.</string>
+    <string name="widget_no_access">Open DateCtrl and allow access to your calendar to see your events here.</string>
+    <string name="widget_empty">Nothing in the next 7 days</string>
+
     <!-- Reminders -->
     <string name="ch_reminders">Event reminders</string>
     <string name="ch_reminders_desc">Reminders for events in your calendars</string>
@@ -155,6 +200,46 @@
     <plurals name="hours">
         <item quantity="one">%1$d hour</item>
         <item quantity="other">%1$d hours</item>
+    </plurals>
+    <plurals name="import_found">
+        <item quantity="one">%1$d event in this file</item>
+        <item quantity="other">%1$d events in this file</item>
+    </plurals>
+    <plurals name="import_button">
+        <item quantity="one">Import %1$d event</item>
+        <item quantity="other">Import %1$d events</item>
+    </plurals>
+    <plurals name="import_duplicates">
+        <item quantity="one">%1$d event is already in this calendar and will be skipped.</item>
+        <item quantity="other">%1$d events are already in this calendar and will be skipped.</item>
+    </plurals>
+    <plurals name="import_done">
+        <item quantity="one">%1$d event added</item>
+        <item quantity="other">%1$d events added</item>
+    </plurals>
+    <plurals name="import_skipped">
+        <item quantity="one">%1$d was already in the calendar and was skipped.</item>
+        <item quantity="other">%1$d were already in the calendar and were skipped.</item>
+    </plurals>
+    <plurals name="import_failed_count">
+        <item quantity="one">%1$d couldn\'t be added.</item>
+        <item quantity="other">%1$d couldn\'t be added.</item>
+    </plurals>
+    <plurals name="import_unreadable_count">
+        <item quantity="one">%1$d entry in the file couldn\'t be read and is left out.</item>
+        <item quantity="other">%1$d entries in the file couldn\'t be read and are left out.</item>
+    </plurals>
+    <plurals name="import_truncated">
+        <item quantity="one">Only the first %1$d event of this file is imported.</item>
+        <item quantity="other">Only the first %1$d events of this file are imported.</item>
+    </plurals>
+    <plurals name="import_and_more">
+        <item quantity="one">And %1$d more event</item>
+        <item quantity="other">And %1$d more events</item>
+    </plurals>
+    <plurals name="export_done">
+        <item quantity="one">%1$d event exported</item>
+        <item quantity="other">%1$d events exported</item>
     </plurals>
     <plurals name="delete_calendar_body">
         <item quantity="one">The calendar and its %1$d event are deleted from this phone. This can\'t be undone.</item>
