@@ -57,7 +57,7 @@ Settings and About are behind your profile picture at the top right of every tab
 ## Is it safe to install?
 
 - **Open source.** All of DateCtrl's code is in this repo, under the GPL-3.0 licence. Anyone can read it.
-- **Built by GitHub, not on a personal computer.** Every release on the Releases page is built by [the build workflow](.github/workflows/build.yml) on GitHub Actions, straight from the code in this repo. Each build also checks that the Gradle wrapper is an official Gradle release, that the app has no network permission and that it has no Google libraries.
+- **Built by GitHub, not on a personal computer.** Every release on the Releases page is built by [the build workflow](.github/workflows/build.yml) on GitHub Actions, straight from the code in this repo. Each build also checks that the Gradle wrapper is an official Gradle release, that the app has no network permission and that it has no Google libraries. The signing key is kept away from the build: one job builds the APK without any secrets, and a separate job that runs no code from this repo signs it and checks the signature against the fingerprint below.
 - **Always signed with the same key.** Android refuses to install an update signed with a different key over DateCtrl, and the CtrlF-Droid repo only accepts APKs signed with this key. The SHA-256 fingerprint of DateCtrl's signing certificate is:
 
   ```
