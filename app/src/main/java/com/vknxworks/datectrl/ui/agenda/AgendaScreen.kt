@@ -38,6 +38,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.vknxworks.datectrl.R
 import com.vknxworks.datectrl.container
 import com.vknxworks.datectrl.data.calendar.Instance
+import com.vknxworks.datectrl.ui.common.rememberToday
 import com.vknxworks.datectrl.ui.common.relativeDay
 import com.vknxworks.datectrl.ui.components.CtrlSecondaryButton
 import com.vknxworks.datectrl.ui.components.CtrlSquareButton
@@ -63,9 +64,10 @@ fun AgendaScreen() {
     val version by c.calendar.version.collectAsStateWithLifecycle()
     var query by rememberSaveable { mutableStateOf("") }
     var months by rememberSaveable { mutableIntStateOf(3) }
-    val today = remember { LocalDate.now() }
+    // Follows the calendar: after midnight the list starts at the new day.
+    val today = rememberToday()
     val until = today.plusMonths(months.toLong())
-    val all by produceState<List<Instance>?>(null, version, months) {
+    val all by produceState<List<Instance>?>(null, version, months, today) {
         value = c.calendar.instancesForDays(today, until)
     }
     val q = query.trim().lowercase()
@@ -74,7 +76,7 @@ fun AgendaScreen() {
         if (q.isEmpty()) list else list.filter { it.title.lowercase().contains(q) || it.location.lowercase().contains(q) }
     }
     // Each event under the day it starts, or today for one that's already going on.
-    val byDay = remember(shown) { shown.groupBy { maxOf(it.firstDay(), today) }.toSortedMap() }
+    val byDay = remember(shown, today) { shown.groupBy { maxOf(it.firstDay(), today) }.toSortedMap() }
 
     LazyColumn(Modifier.fillMaxSize().statusBarsPadding(), contentPadding = PaddingValues(bottom = 24.dp)) {
         item {

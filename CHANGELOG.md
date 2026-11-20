@@ -4,6 +4,26 @@ What changed in each DateCtrl release. Every release on the [Releases page](http
 
 To publish a new version: bump `versionCode` and `versionName` in `app/build.gradle.kts`, add a section here, and push to `main`. Pushes without a version bump only build; they don't make a release.
 
+## Unreleased
+
+Not released yet: these changes are in the code and will ship with the next version.
+
+### Removed
+
+- **The Agenda home-screen widget is gone.** The Ctrl apps no longer have home-screen widgets. After the update an Agenda widget on your home screen stops working and can be removed from the home screen; your events are not touched. Everything that only existed for the widget went with it: its background refresh job on the calendar storage, the refresh after midnight and on a change of clock or time zone, and the widget refresh every time DateCtrl came to the front.
+
+### Fixed
+
+- **"Today" no longer goes stale after midnight.** If DateCtrl stayed open past midnight, the Agenda kept starting at yesterday and the month view kept marking yesterday as today until the screen was rebuilt. Both now follow the date: they move on just after midnight, when you come back to the app, and after a change of clock or time zone.
+
+### Changed
+
+- **Opens with your settings already in place.** DateCtrl now waits a few milliseconds (half a second at most) for your saved settings before it draws its first screen, so the month view no longer shows for a moment with the default first day of the week or without week numbers and then changes.
+
+### Privacy
+
+- **"Hide in screenshots" is on from the very first frame.** The app's window now starts hidden from screenshots and screen recordings, and that is lifted only once your saved settings say the switch is off. Before, the protection was switched on a few frames after the app opened.
+
 ## Project updates (2026-11-19)
 
 ### Project

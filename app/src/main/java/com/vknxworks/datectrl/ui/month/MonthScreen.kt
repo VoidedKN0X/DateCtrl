@@ -51,6 +51,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.vknxworks.datectrl.R
 import com.vknxworks.datectrl.container
 import com.vknxworks.datectrl.data.calendar.Instance
+import com.vknxworks.datectrl.ui.common.rememberToday
 import com.vknxworks.datectrl.ui.common.asColor
 import com.vknxworks.datectrl.ui.common.dateLong
 import com.vknxworks.datectrl.ui.common.dayNarrow
@@ -90,7 +91,10 @@ fun MonthScreen() {
     val settings by c.settings.settings.collectAsStateWithLifecycle()
     val selected by c.selectedDay.collectAsStateWithLifecycle()
     val version by c.calendar.version.collectAsStateWithLifecycle()
+    // Page 1200 is the month the screen was opened in; only a fixed point to count pages from.
     val base = remember { YearMonth.now() }
+    // The day marked as today moves on at midnight.
+    val today = rememberToday()
     val first = firstDay(settings.weekStart)
 
     fun pageOf(d: LocalDate) = (CENTER + ChronoUnit.MONTHS.between(base, YearMonth.from(d)).toInt()).coerceIn(0, PAGES - 1)
@@ -144,7 +148,7 @@ fun MonthScreen() {
         item {
             HorizontalPager(pager, Modifier.fillMaxWidth().height(GRID_HEIGHT + 8.dp), beyondViewportPageCount = 1) { page ->
                 val month = base.plusMonths((page - CENTER).toLong())
-                MonthGrid(month, first, selected, settings.weekNumbers, version) { c.selectedDay.value = it }
+                MonthGrid(month, first, selected, today, settings.weekNumbers, version) { c.selectedDay.value = it }
             }
         }
         item {
@@ -182,7 +186,7 @@ private val WEEK_COL = 26.dp
 
 /** Six weeks starting on the week of the 1st, with a dot per event (up to three) under each day. */
 @Composable
-private fun MonthGrid(month: YearMonth, firstDay: DayOfWeek, selected: LocalDate, weekNumbers: Boolean, version: Int, onPick: (LocalDate) -> Unit) {
+private fun MonthGrid(month: YearMonth, firstDay: DayOfWeek, selected: LocalDate, today: LocalDate, weekNumbers: Boolean, version: Int, onPick: (LocalDate) -> Unit) {
     val context = LocalContext.current
     val c = context.container
     val start = month.atDay(1).let { d -> d.minusDays(((d.dayOfWeek.value - firstDay.value + 7) % 7).toLong()) }
@@ -200,7 +204,6 @@ private fun MonthGrid(month: YearMonth, firstDay: DayOfWeek, selected: LocalDate
         }
         value = map
     }
-    val today = LocalDate.now()
     Column(Modifier.fillMaxWidth().padding(horizontal = Gutter)) {
         for (week in 0 until 6) {
             Row(Modifier.fillMaxWidth().height(CELL_HEIGHT), verticalAlignment = Alignment.CenterVertically) {
