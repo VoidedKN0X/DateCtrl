@@ -4,6 +4,14 @@ What changed in each DateCtrl release. Every release on the [Releases page](http
 
 To publish a new version: bump `versionCode` and `versionName` in `app/build.gradle.kts`, add a section here, and push to `main`. Pushes without a version bump only build; they don't make a release.
 
+## v0.3.1 (2026-11-20)
+
+A maintenance release: **the app itself is unchanged** from 0.3.0. Nothing looks or works differently, and you don't need to do anything.
+
+### Security
+
+- **First release made by the new build-and-sign pipeline.** DateCtrl's releases are now built by a job that has no access to the signing key, and signed afterwards by a separate job that runs none of the build's code and checks the result against the published certificate fingerprint (see "Project updates" below and SECURITY.md). This release exists to prove that pipeline end to end: it is signed with the same key as every earlier release, so it installs as a normal update over 0.3.0.
+
 ## Project updates (2026-11-20)
 
 Nothing in the app changed.
