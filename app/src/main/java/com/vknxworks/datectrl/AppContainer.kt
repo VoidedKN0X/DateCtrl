@@ -4,7 +4,6 @@ import android.content.Context
 import com.vknxworks.datectrl.data.calendar.CalendarRepository
 import com.vknxworks.datectrl.data.calendar.EventDraft
 import com.vknxworks.datectrl.data.calendar.IcsStore
-import com.vknxworks.datectrl.widget.AgendaWidget
 import com.vknxworks.datectrl.data.lock.LockVault
 import com.vknxworks.datectrl.data.settings.AppSettings
 import com.vknxworks.datectrl.data.settings.SettingsRepository
@@ -45,13 +44,10 @@ class AppContainer(val context: Context) {
     suspend fun enableLock(pin: String) {
         AppLock.markUnlocked()
         withContext(Dispatchers.Default) { vault.setUp(pin) }
-        // The widget now shows only "Locked".
-        AgendaWidget.requestUpdate(context)
     }
 
     fun disableLock() {
         vault.disable()
-        AgendaWidget.requestUpdate(context)
     }
 
     /**
@@ -62,7 +58,6 @@ class AppContainer(val context: Context) {
         settings.update { AppSettings() }
         vault.disable()
         AppLock.markUnlocked()
-        AgendaWidget.requestUpdate(context)
     }
 
     fun onLocked() {

@@ -109,37 +109,6 @@
             </intent-filter>
         </activity>
 
-        <!-- Agenda home-screen widget. Not exported: only the system's widget service (and DateCtrl's own midnight
-             alarm) can send it broadcasts, so other apps can't trigger refreshes. -->
-        <receiver
-            android:name=".widget.AgendaWidget"
-            android:exported="false"
-            android:label="@string/widget_name">
-            <intent-filter>
-                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
-                <!-- The rest of what Android's widget host sends, so strict intent matching lets it through. -->
-                <action android:name="android.appwidget.action.APPWIDGET_ENABLED" />
-                <action android:name="android.appwidget.action.APPWIDGET_DISABLED" />
-                <action android:name="android.appwidget.action.APPWIDGET_DELETED" />
-                <action android:name="android.appwidget.action.APPWIDGET_UPDATE_OPTIONS" />
-                <action android:name="android.appwidget.action.APPWIDGET_RESTORED" />
-                <!-- A new day, or the clock or time zone changed: the list moves on. -->
-                <action android:name="android.intent.action.TIME_SET" />
-                <action android:name="android.intent.action.TIMEZONE_CHANGED" />
-                <action android:name="com.vknxworks.datectrl.widget.MIDNIGHT" />
-            </intent-filter>
-            <meta-data
-                android:name="android.appwidget.provider"
-                android:resource="@xml/widget_agenda_info" />
-        </receiver>
-
-        <!-- Refreshes the widget when the calendar storage changes (a JobScheduler content trigger). Only the
-             system can bind it. -->
-        <service
-            android:name=".widget.AgendaRefreshJob"
-            android:exported="false"
-            android:permission="android.permission.BIND_JOB_SERVICE" />
-
         <!-- Shares an event as an .ics file, only with the app you pick and only for that share. -->
         <provider
             android:name="androidx.core.content.FileProvider"

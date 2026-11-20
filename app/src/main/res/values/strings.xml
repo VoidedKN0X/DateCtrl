@@ -145,12 +145,6 @@
     <string name="export_failed">Couldn\'t save the file</string>
     <string name="export_done_body">The file is where you saved it. It holds your events as they are, so keep it somewhere private.</string>
 
-    <!-- Agenda widget -->
-    <string name="widget_name">Agenda</string>
-    <string name="widget_description">Your next events, today and the coming days, with a button to add one</string>
-    <string name="widget_locked">Locked. Open DateCtrl to see your events.</string>
-    <string name="widget_no_access">Open DateCtrl and allow access to your calendar to see your events here.</string>
-    <string name="widget_empty">Nothing in the next 7 days</string>
 
     <!-- Reminders -->
     <string name="ch_reminders">Event reminders</string>
