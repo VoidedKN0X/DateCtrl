@@ -1,0 +1,144 @@
+name: Gradle cache diagnostic (temporary)
+
+# One-off investigation of the "Dependency verification failed ... from repository Gradle Central
+# Plugin Repository" failures. Run by hand; no secrets, nothing is published or cached. To be removed.
+on:
+  workflow_dispatch:
+
+permissions: {}
+
+jobs:
+  # Do Maven Central and the Gradle plugin portal serve the same bytes for the plugin marker POMs?
+  poms:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          persist-credentials: false
+      - name: Compare marker POMs
+        run: |
+          kotlin=$(grep -m1 -oP '^kotlin\s*=\s*"\K[^"]+' gradle/libs.versions.toml)
+          agp=$(grep -m1 -oP '^agp\s*=\s*"\K[^"]+' gradle/libs.versions.toml)
+          for spec in "org.jetbrains.kotlin.android:$kotlin" "org.jetbrains.kotlin.plugin.compose:$kotlin" "org.jetbrains.kotlin.plugin.serialization:$kotlin" "com.android.application:$agp"; do
+            id=${spec%%:*}; ver=${spec##*:}
+            path="$(echo "$id" | tr . /)/$id.gradle.plugin/$ver/$id.gradle.plugin-$ver.pom"
+            want=$(grep -A2 "name=\"$id.gradle.plugin-$ver.pom\"" gradle/verification-metadata.xml | grep -m1 -oP 'sha256 value="\K[0-9a-f]+' || true)
+            echo "== $id $ver   verification-metadata.xml: ${want:-none}"
+            for base in https://repo.maven.apache.org/maven2 https://dl.google.com/dl/android/maven2 https://plugins.gradle.org/m2; do
+              code=$(curl -sS -L -o pom.tmp -w '%{http_code} final=%{url_effective}' "$base/$path" || true)
+              sum=$(sha256sum pom.tmp 2>/dev/null | cut -d' ' -f1)
+              match=no; [ "$sum" = "$want" ] && match=YES
+              echo "   $base -> HTTP $code sha256=$sum bytes=$(stat -c %s pom.tmp 2>/dev/null) matches-metadata=$match"
+              rm -f pom.tmp
+            done
+          done
+          echo "== The two kotlin.android marker POMs, side by side"
+          id=org.jetbrains.kotlin.android
+          path="$(echo "$id" | tr . /)/$id.gradle.plugin/$kotlin/$id.gradle.plugin-$kotlin.pom"
+          curl -sS -L -o central.pom "https://repo.maven.apache.org/maven2/$path" || true
+          curl -sS -L -o portal.pom "https://plugins.gradle.org/m2/$path" || true
+          diff central.pom portal.pom && echo "IDENTICAL" || echo "DIFFERENT"
+
+  # The scenarios. "restored" uses the Gradle cache the build job last saved (read-only);
+  # "cold" starts empty; "local-warm" resolves once normally, then again with the block in place.
+  resolve:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: restored-normal
+            cache: restored
+            block: none
+          - name: restored-central-down
+            cache: restored
+            block: central
+          - name: local-warm-central-down
+            cache: local-warm
+            block: central
+          - name: cold-central-down
+            cache: cold
+            block: central
+          - name: cold-portal-down-full-build
+            cache: cold
+            block: portal
+    name: ${{ matrix.name }}
+    env:
+      CACHE_KIND: ${{ matrix.cache }}
+      BLOCK: ${{ matrix.block }}
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          persist-credentials: false
+
+      - uses: actions/setup-java@cf277c60eb25467037889841efdb72551f06f6c3 # v4
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - uses: gradle/actions/setup-gradle@ed408507eac070d1f99cc633dbcf757c94c7933a # v4
+        if: matrix.cache == 'restored'
+        with:
+          cache-read-only: true
+
+      - uses: gradle/actions/setup-gradle@ed408507eac070d1f99cc633dbcf757c94c7933a # v4
+        if: matrix.cache != 'restored'
+        with:
+          cache-disabled: true
+
+      - name: Warm the Gradle home on this machine
+        if: matrix.cache == 'local-warm'
+        run: |
+          chmod +x gradlew
+          env -u CI -u GITHUB_ACTIONS ./gradlew --no-daemon help > warm.log 2>&1 || { tail -40 warm.log; exit 1; }
+          tail -3 warm.log
+
+      - name: What is in the Gradle home
+        run: |
+          ls ~/.gradle/caches 2>/dev/null || echo "no caches directory"
+          ls ~/.gradle/caches/modules-2 2>/dev/null || true
+          find ~/.gradle/caches/modules-2/files-2.1/org.jetbrains.kotlin.android -type f 2>/dev/null | while IFS= read -r f; do
+            echo "$(sha256sum "$f" | cut -d' ' -f1)  $f"
+          done
+
+      - name: Block a repository
+        if: matrix.block != 'none'
+        run: |
+          if [ "$BLOCK" = central ]; then hosts="repo.maven.apache.org repo1.maven.org"; else hosts="plugins.gradle.org plugins-artifacts.gradle.org"; fi
+          for h in $hosts; do
+            echo "127.0.0.1 $h" | sudo tee -a /etc/hosts
+            echo "::1 $h" | sudo tee -a /etc/hosts
+          done
+          curl -sS -m 10 -o /dev/null -w 'central: %{http_code}\n' https://repo.maven.apache.org/maven2/ || true
+          curl -sS -m 10 -o /dev/null -w 'portal: %{http_code}\n' https://plugins.gradle.org/m2/ || true
+
+      - name: Resolve the plugins
+        run: |
+          chmod +x gradlew
+          task=help
+          [ "$BLOCK" = portal ] && task=assembleRelease
+          set +e
+          env -u CI -u GITHUB_ACTIONS ./gradlew --no-daemon --info "$task" > gradle.log 2>&1
+          rc=$?
+          set -e
+          echo "::notice title=${CACHE_KIND} cache, ${BLOCK} blocked::gradle exit code $rc"
+          echo "== result"
+          grep -E 'BUILD (SUCCESSFUL|FAILED)' gradle.log || true
+          grep -E 'What went wrong' -A 8 gradle.log | head -40 || true
+          echo "== network activity"
+          echo "Downloading lines:        $(grep -c 'Downloading https' gradle.log || true)"
+          echo "Cached resource up-to-date: $(grep -c 'Cached resource .* is up-to-date' gradle.log || true)"
+          echo "Resource missing:         $(grep -c 'Resource missing' gradle.log || true)"
+          echo "By host:"
+          grep -oE '(Downloading|Cached resource|Resource missing\. \[HTTP [A-Z]+:) https://[^/ ]+' gradle.log | sort | uniq -c || true
+          echo "== everything about the plugin markers and repository failures"
+          grep -nE 'gradle\.plugin-|Could not (GET|HEAD|resolve)|refused|disabled|blacklist|Repository .* is (disabled|unavailable)|failed verification|plugins\.gradle\.org' gradle.log | cut -c1-400 | head -80 || true
+          echo "== files for the kotlin.android marker afterwards"
+          find ~/.gradle/caches/modules-2/files-2.1/org.jetbrains.kotlin.android -type f 2>/dev/null | while IFS= read -r f; do
+            echo "$(sha256sum "$f" | cut -d' ' -f1)  $f"
+          done
+          echo "exit code $rc"

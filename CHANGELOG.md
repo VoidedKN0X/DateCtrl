@@ -4,6 +4,12 @@ What changed in each DateCtrl release. Every release on the [Releases page](http
 
 To publish a new version: bump `versionCode` and `versionName` in `app/build.gradle.kts`, add a section here, and push to `main`. Pushes without a version bump only build; they don't make a release.
 
+## Project updates (2026-11-20)
+
+### Project
+
+- **Temporary diagnostic workflow.** A hand-started workflow (`cache-diagnostic.yml`, no secrets, publishes nothing) that looks into why builds of other Ctrl apps sometimes failed dependency verification on a Gradle plugin file. It is removed again once the cause is known.
+
 ## v0.3.0 (2026-11-20)
 
 Built and checked by CI only: nothing in this release had been run on a phone when it was published.
