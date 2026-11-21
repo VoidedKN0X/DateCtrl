@@ -310,4 +310,20 @@
     <string name="reminder_custom">Custom reminder…</string>
     <string name="reminder_custom_before">before the event</string>
     <string name="reminder_custom_invalid">From 1 minute to 4 weeks before.</string>
+
+    <!-- Settings export and import -->
+    <string name="backup_title">Export and import</string>
+    <string name="backup_footer">A settings file holds the month view, new-event defaults and reminder settings. It never holds events (export those as an .ics file), the default calendar, the app lock or its PIN.</string>
+    <string name="backup_save">Export settings</string>
+    <string name="backup_save_sub">Save them to a file you pick</string>
+    <string name="backup_restore">Import settings</string>
+    <string name="backup_restore_sub">From a DateCtrl settings file</string>
+    <string name="backup_restore_title">Import settings?</string>
+    <string name="backup_restore_body">The settings from the file of %1$s replace these settings here: first day of the week, week numbers, default length and reminder for new events, and reminder notifications. Hide in screenshots and Hide in recent apps are only turned on, never off. Your events, calendars, default calendar and app lock stay as they are.</string>
+    <string name="backup_restore_confirm">Import</string>
+    <string name="backup_saved">Settings saved to the file</string>
+    <string name="backup_save_failed">Couldn\'t save the file</string>
+    <string name="backup_restored">Settings imported</string>
+    <string name="backup_not_valid">This isn\'t a DateCtrl settings file, or it\'s damaged.</string>
+    <string name="backup_too_new">This file is from a newer DateCtrl. Update DateCtrl first.</string>
 </resources>

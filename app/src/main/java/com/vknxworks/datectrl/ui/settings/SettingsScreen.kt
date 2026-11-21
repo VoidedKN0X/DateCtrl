@@ -67,6 +67,7 @@ fun SettingsScreen() {
             ViewGroup(settings) { set(it) }
             NewEventsGroup(settings) { set(it) }
             RemindersGroup(settings) { set(it) }
+            BackupGroup()
             PrivacyAndSecurityGroup(settings)
         }
     }
