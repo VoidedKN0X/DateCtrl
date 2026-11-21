@@ -4,6 +4,12 @@ What changed in each DateCtrl release. Every release on the [Releases page](http
 
 To publish a new version: bump `versionCode` and `versionName` in `app/build.gradle.kts`, add a section here, and push to `main`. Pushes without a version bump only build; they don't make a release.
 
+## Unreleased
+
+### New
+
+- **DateCtrl in French and German, following the phone's language.** Every screen, message and setting now also comes in French (polite "vous" form) and German (informal "du"), next to English and Dutch. Android's per-app language setting (Settings > Apps > DateCtrl > Language) now offers all four. Translated by Claude and checked by script for missing strings and placeholders; not yet read through by a native speaker or run on a phone. Quick add still understands English and Dutch only: in French and German its help text says so, and its example stays in English so it can be typed as shown.
+
 ## v0.4.0 (2026-11-21)
 
 Built and checked by CI only: nothing in this release had been run on a phone when it was published.
