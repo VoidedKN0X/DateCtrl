@@ -1,6 +1,16 @@
 package com.vknxworks.datectrl.ui.agenda
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.lazy.LazyListScope
+import androidx.compose.material.icons.outlined.Bolt
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.ui.Alignment
+import com.vknxworks.datectrl.data.calendar.SearchHit
+import com.vknxworks.datectrl.ui.event.QuickAddSheet
+import kotlinx.coroutines.delay
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
@@ -71,10 +81,16 @@ fun AgendaScreen() {
         value = c.calendar.instancesForDays(today, until)
     }
     val q = query.trim().lowercase()
-    val shown = remember(all, q) {
-        val list = all.orEmpty()
-        if (q.isEmpty()) list else list.filter { it.title.lowercase().contains(q) || it.location.lowercase().contains(q) }
+    // Searching looks through every event in your calendars, past and future, not only the months shown.
+    val hits by produceState<List<SearchHit>?>(null, q, version) {
+        value = null
+        if (q.isNotEmpty()) {
+            delay(250)
+            value = c.calendar.searchEvents(q)
+        }
     }
+    val shown = remember(all, q) { if (q.isEmpty()) all.orEmpty() else emptyList() }
+    var quickAdd by rememberSaveable { mutableStateOf(false) }
     // Each event under the day it starts, or today for one that's already going on.
     val byDay = remember(shown, today) { shown.groupBy { maxOf(it.firstDay(), today) }.toSortedMap() }
 
@@ -82,7 +98,12 @@ fun AgendaScreen() {
         item {
             TabTitle(
                 stringResource(R.string.tab_agenda),
-                trailing = { CtrlSquareButton(Icons.Outlined.Add, stringResource(R.string.new_event), onClick = { nav.navigate(EditRoute(day = LocalDate.now().toEpochDay())) }) },
+                trailing = {
+                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                        CtrlSquareButton(Icons.Outlined.Bolt, stringResource(R.string.quick_add), onClick = { quickAdd = true })
+                        CtrlSquareButton(Icons.Outlined.Add, stringResource(R.string.new_event), onClick = { nav.navigate(EditRoute(day = LocalDate.now().toEpochDay())) })
+                    }
+                },
             )
         }
         item {
@@ -99,7 +120,10 @@ fun AgendaScreen() {
                 modifier = Modifier.fillMaxWidth().padding(horizontal = Gutter, vertical = 6.dp),
             )
         }
-        if (all != null && byDay.isEmpty()) {
+        if (q.isNotEmpty()) {
+            searchResults(hits, today) { h -> nav.navigate(EventRoute(h.eventId, h.begin, h.end)) }
+        }
+        if (q.isEmpty() && all != null && byDay.isEmpty()) {
             item {
                 if (q.isEmpty()) {
                     MessageView(
@@ -122,7 +146,7 @@ fun AgendaScreen() {
                 InstanceRow(e, day, Modifier.padding(horizontal = Gutter, vertical = 4.dp)) { nav.navigate(EventRoute(e.eventId, e.begin, e.end)) }
             }
         }
-        if (all != null && months < 60) {
+        if (q.isEmpty() && all != null && months < 60) {
             item {
                 CtrlSecondaryButton(
                     onClick = { months += 12 },
@@ -131,5 +155,37 @@ fun AgendaScreen() {
             }
         }
         item { Spacer(Modifier.bottomClearance(0.dp)) }
+    }
+    if (quickAdd) QuickAddSheet(onDismiss = { quickAdd = false })
+}
+
+/** Search results: coming up first (soonest first), then repeating events, then the past (newest first). */
+private fun LazyListScope.searchResults(hits: List<SearchHit>?, today: LocalDate, onOpen: (SearchHit) -> Unit) {
+    if (hits == null) {
+        item { Box(Modifier.fillMaxWidth().padding(24.dp), contentAlignment = Alignment.Center) { CircularProgressIndicator(color = CtrlColors.AccentText) } }
+        return
+    }
+    if (hits.isEmpty()) {
+        item {
+            MessageView(Icons.Outlined.SearchOff, stringResource(R.string.no_results), stringResource(R.string.no_results_all_body), modifier = Modifier.heightIn(min = 260.dp))
+        }
+        return
+    }
+    val asInstance = { h: SearchHit -> Instance(h.eventId, h.begin, h.end, h.title, h.location, h.allDay, h.calendarId, h.color, declined = false) }
+    val repeating = hits.filter { it.repeating }
+    val single = hits.filter { !it.repeating }
+    val upcoming = single.filter { !asInstance(it).lastDay().isBefore(today) }.sortedBy { it.begin }
+    val past = single.filter { asInstance(it).lastDay().isBefore(today) }.sortedByDescending { it.begin }
+    listOf(R.string.search_upcoming to upcoming, R.string.search_repeating to repeating, R.string.search_past to past).forEach { (label, list) ->
+        if (list.isEmpty()) return@forEach
+        item(key = "s$label") {
+            Column(Modifier.fillMaxWidth().padding(start = Gutter + 4.dp, end = Gutter, top = 14.dp, bottom = 4.dp)) {
+                SectionLabel(stringResource(label).uppercase())
+            }
+        }
+        items(list, key = { "h${label}_${it.eventId}" }) { h ->
+            val inst = asInstance(h)
+            InstanceRow(inst, inst.firstDay(), Modifier.padding(horizontal = Gutter, vertical = 4.dp)) { onOpen(h) }
+        }
     }
 }

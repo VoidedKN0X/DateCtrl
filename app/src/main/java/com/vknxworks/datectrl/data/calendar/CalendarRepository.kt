@@ -135,6 +135,47 @@ class CalendarRepository(private val context: Context, private val scope: Corout
         out
     }
 
+    /**
+     * Events in visible calendars whose title, location or description contains [query] (case-insensitive), from
+     * any time: past and future, without going through every occurrence of repeating events. Newest start first,
+     * at most [limit].
+     */
+    suspend fun searchEvents(query: String, limit: Int = 300): List<SearchHit> = withContext(Dispatchers.IO) {
+        val q = query.trim()
+        if (!canRead() || q.isEmpty()) return@withContext emptyList()
+        // LIKE with the wildcards in the query itself escaped.
+        val pattern = "%" + q.replace("\\", "\\\\").replace("%", "\\%").replace("_", "\\_") + "%"
+        val sel = "${Events.DELETED}=0 AND ${Events.VISIBLE}=1 AND (${Events.STATUS} IS NULL OR ${Events.STATUS}!=${Events.STATUS_CANCELED}) AND " +
+            "(${Events.TITLE} LIKE ? ESCAPE '\\' OR ${Events.EVENT_LOCATION} LIKE ? ESCAPE '\\' OR ${Events.DESCRIPTION} LIKE ? ESCAPE '\\')"
+        val proj = arrayOf(
+            Events._ID, Events.TITLE, Events.EVENT_LOCATION, Events.DTSTART, Events.DTEND, Events.DURATION,
+            Events.ALL_DAY, Events.RRULE, Events.CALENDAR_ID, Events.DISPLAY_COLOR,
+        )
+        val out = ArrayList<SearchHit>()
+        runCatching {
+            resolver.query(Events.CONTENT_URI, proj, sel, arrayOf(pattern, pattern, pattern), "${Events.DTSTART} DESC")?.use { c ->
+                while (c.moveToNext() && out.size < limit) {
+                    val start = c.getLong(3)
+                    val allDay = c.getInt(6) != 0
+                    val length = if (!c.isNull(4)) (c.getLong(4) - start).coerceAtLeast(0)
+                    else parseDuration(c.getString(5)) ?: if (allDay) DAY_MS else HOUR_MS
+                    out += SearchHit(
+                        eventId = c.getLong(0),
+                        title = c.getString(1).orEmpty(),
+                        location = c.getString(2).orEmpty(),
+                        begin = start,
+                        end = start + length,
+                        allDay = allDay,
+                        repeating = !c.getString(7).isNullOrBlank(),
+                        calendarId = c.getLong(8),
+                        color = if (c.isNull(9)) DEFAULT_COLOR else c.getInt(9),
+                    )
+                }
+            }
+        }
+        out
+    }
+
     /** Occurrences on the days [first]..[last] in the phone's time zone (all-day events by their own date). */
     suspend fun instancesForDays(first: LocalDate, last: LocalDate): List<Instance> {
         val zone = ZoneId.systemDefault()

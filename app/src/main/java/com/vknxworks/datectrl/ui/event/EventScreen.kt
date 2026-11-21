@@ -162,7 +162,11 @@ private fun Details(e: EventDetail, begin: Long, end: Long) {
                 trailing = { Box(Modifier.size(14.dp).clip(CtrlShapes.Dot).background(e.color.asColor())) },
             )
             if (e.repeating) {
-                GroupRow(stringResource(R.string.repeat), repeatLabel(e.rrule), icon = Icons.Outlined.Repeat)
+                GroupRow(
+                    stringResource(R.string.repeat),
+                    repeatLabel(e.rrule, e.timeZone?.let { z -> runCatching { java.time.ZoneId.of(z) }.getOrNull() } ?: java.time.ZoneId.systemDefault()),
+                    icon = Icons.Outlined.Repeat,
+                )
             }
             if (e.location.isNotBlank()) {
                 GroupRow(
@@ -219,11 +223,33 @@ private fun attendeeStatus(status: Int, organizer: Boolean): String? = when {
 }
 
 @Composable
-fun repeatLabel(rrule: String?): String = when (Repeat.of(rrule)) {
-    Repeat.NEVER -> stringResource(R.string.repeat_never)
-    Repeat.DAILY -> stringResource(R.string.repeat_daily)
-    Repeat.WEEKLY -> stringResource(R.string.repeat_weekly)
-    Repeat.MONTHLY -> stringResource(R.string.repeat_monthly)
-    Repeat.YEARLY -> stringResource(R.string.repeat_yearly)
-    Repeat.CUSTOM -> stringResource(R.string.repeat_custom)
+fun repeatLabel(rrule: String?, zone: java.time.ZoneId = java.time.ZoneId.systemDefault()): String {
+    // Every N days/weeks/months/years, until a date or a number of times: said in full.
+    val r = com.vknxworks.datectrl.data.calendar.RepeatRules.parse(rrule, zone)
+    if (r != null && (r.interval > 1 || r.until != null || r.count != null)) return repeatRuleLabel(r)
+    return when (Repeat.of(rrule)) {
+        Repeat.NEVER -> stringResource(R.string.repeat_never)
+        Repeat.DAILY -> stringResource(R.string.repeat_daily)
+        Repeat.WEEKLY -> stringResource(R.string.repeat_weekly)
+        Repeat.MONTHLY -> stringResource(R.string.repeat_monthly)
+        Repeat.YEARLY -> stringResource(R.string.repeat_yearly)
+        Repeat.CUSTOM -> stringResource(R.string.repeat_custom)
+    }
+}
+
+/** "Every 2 weeks, until 5 Jan 2027", "Every day, 10 times". */
+@Composable
+fun repeatRuleLabel(r: com.vknxworks.datectrl.data.calendar.RepeatRule): String {
+    val n = r.interval
+    val every = when (r.freq) {
+        com.vknxworks.datectrl.data.calendar.Freq.DAILY -> androidx.compose.ui.res.pluralStringResource(R.plurals.repeat_every_days, n, n)
+        com.vknxworks.datectrl.data.calendar.Freq.WEEKLY -> androidx.compose.ui.res.pluralStringResource(R.plurals.repeat_every_weeks, n, n)
+        com.vknxworks.datectrl.data.calendar.Freq.MONTHLY -> androidx.compose.ui.res.pluralStringResource(R.plurals.repeat_every_months, n, n)
+        com.vknxworks.datectrl.data.calendar.Freq.YEARLY -> androidx.compose.ui.res.pluralStringResource(R.plurals.repeat_every_years, n, n)
+    }
+    return when {
+        r.until != null -> stringResource(R.string.repeat_until, every, com.vknxworks.datectrl.ui.common.dateMedium(r.until))
+        r.count != null -> androidx.compose.ui.res.pluralStringResource(R.plurals.repeat_times, r.count, every, r.count)
+        else -> every
+    }
 }

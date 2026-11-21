@@ -14,8 +14,9 @@ Part of the [Ctrl series](#the-ctrl-series) by VKNXWorks.
 
 - **Works fully offline.** DateCtrl doesn't have the internet permission and never goes online. It reads and writes Android's own calendar storage, so accounts keep syncing through their own apps
 - **Month view** with a dot per event under each day, swipe between months, Today, week numbers if you want them, and the chosen day's events below
-- **Agenda:** upcoming events day by day with search by title or place, three months ahead and more on request
-- **Events** with title, all-day or start and end time, repeat (daily, weekly, monthly, yearly; other repeats from other apps are kept), calendar, place, description and several reminders. Repeating events can be changed or deleted for one occurrence or the whole series
+- **Agenda:** upcoming events day by day, three months ahead and more on request. **Search** looks through every event in your calendars, past and future, by title, place or description
+- **Quick add:** type "dentist friday 14:00" or "tandarts vrijdag om 14u" (English or Dutch), check what it understood and finish in the editor. Read on the phone, never sent anywhere
+- **Events** with title, all-day or start and end time, repeat (daily, weekly, monthly, yearly, or custom: every N days, weeks, months or years, until a date or a number of times; other repeats from other apps are kept), its own time zone, calendar, place, description and up to five reminders from 5 minutes to 2 weeks before or a custom time up to 4 weeks. A warning shows when it overlaps another event. Repeating events can be changed or deleted for one occurrence or the whole series
 - **Event details:** time, calendar, repeat, place (opens in your maps app), description, reminders and the guest list with replies
 - **Reminders** as notifications with Snooze (10 minutes) and Dismiss; on the lock screen they show the event only when your phone allows private notification content
 - **Calendars:** show or hide each calendar, grouped by account; add, rename, recolour and delete calendars on this phone

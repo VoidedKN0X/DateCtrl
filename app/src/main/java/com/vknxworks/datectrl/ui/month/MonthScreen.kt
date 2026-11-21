@@ -27,11 +27,14 @@ import androidx.compose.material.icons.automirrored.outlined.KeyboardArrowRight
 import androidx.compose.material.icons.outlined.Add
 import androidx.compose.material.icons.outlined.EventAvailable
 import androidx.compose.material.icons.outlined.Today
+import androidx.compose.material.icons.outlined.Bolt
+import com.vknxworks.datectrl.ui.event.QuickAddSheet
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
 import androidx.compose.runtime.produceState
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.snapshotFlow
@@ -120,6 +123,7 @@ fun MonthScreen() {
         value = c.calendar.instancesForDays(selected, selected)
     }
 
+    var quickAdd by androidx.compose.runtime.saveable.rememberSaveable { androidx.compose.runtime.mutableStateOf(false) }
     LazyColumn(Modifier.fillMaxSize().statusBarsPadding(), contentPadding = PaddingValues(bottom = 24.dp)) {
         item {
             TabTitle(
@@ -127,6 +131,7 @@ fun MonthScreen() {
                 label = shownMonth.year.toString(),
                 trailing = {
                     CtrlSquareButton(Icons.Outlined.Today, stringResource(R.string.today), onClick = { c.selectedDay.value = LocalDate.now() })
+                    CtrlSquareButton(Icons.Outlined.Bolt, stringResource(R.string.quick_add), onClick = { quickAdd = true })
                     CtrlSquareButton(Icons.Outlined.Add, stringResource(R.string.new_event), onClick = { nav.navigate(EditRoute(day = selected.toEpochDay())) })
                 },
             )
@@ -178,6 +183,7 @@ fun MonthScreen() {
         }
         item { Spacer(Modifier.bottomClearance(0.dp)) }
     }
+    if (quickAdd) QuickAddSheet(onDismiss = { quickAdd = false }, day = selected)
 }
 
 private val CELL_HEIGHT = 50.dp

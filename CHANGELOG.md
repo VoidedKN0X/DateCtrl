@@ -6,9 +6,20 @@ To publish a new version: bump `versionCode` and `versionName` in `app/build.gra
 
 ## Unreleased
 
-Changes on `main` that aren't in a release yet. They ship with the next version.
+Changes on `main` that aren't in a release yet. They ship with the next version. Built and checked by CI only; none of it has been run on a phone yet.
+
+### New
+
+- **Richer repeats.** In the editor, **Repeat → Custom…** builds a repeat of every 1 to 99 days, weeks, months or years, ending never, on a date (the last day it may happen) or after 1 to 999 times. Weekly repeats fall on the weekday the event starts on, monthly ones on its day of the month. Events with such a repeat (also from other apps) now show it in full, like "Every 2 weeks, until 5 Jan 2027", and open in the custom sheet; repeats DateCtrl can't show (several weekdays, "second Tuesday" …) are still kept exactly as they are. An end date is written the way the calendar standard asks: as a date for all-day events, and as the last second of that day in the event's time zone, in UTC, for timed events.
+- **More reminder options.** The reminder list now also has 20 and 45 minutes, 1½ and 3 hours, 3 days and 2 weeks before, and **Custom reminder…** sets any number of minutes, hours, days or weeks before, up to 4 weeks. An event still has at most five reminders, as many calendar accounts allow no more.
+- **Quick add.** The new lightning button on the Month and Agenda tabs opens **Quick add**: type an event the way you'd say it, in English or Dutch ("dentist friday 14:00", "lunch with Anna tomorrow 12:30-13:30", "tandarts vrijdag om 14u", "verjaardag 3 dec", "review in 3 days", "vergadering maandag van 14u tot 16u"). It shows what it understood as you type; **Continue** opens the editor filled in, so nothing is saved until you check it and tap save. A sentence without a time becomes an all-day event; one without a day goes on today (tomorrow for a time already past), or on the day picked in the month view. Dates are read day first (3/12 is 3 December). The sentence is read on the phone only; DateCtrl still has no internet permission.
+- **Search across all time.** Searching in Agenda now looks through every event in your visible calendars, past and future, by title, place or description, instead of only the months shown. Results are grouped as Coming up (soonest first), Repeating events and Past (newest first); tap one to open it.
+- **Time zone picker.** A timed event now has a **Time zone** row: pick any time zone by city or region. The start and end times are shown and picked in the event's own time zone, and when that differs from the phone's, the row shows the same times on this phone. Changing the time zone keeps the times on the clock (14:00 stays 14:00, now in the other zone). Events from other apps in another time zone are now shown in the editor in their own zone too.
+- **Overlap warning.** While you edit a timed event, a warning lists the other events at the same time (up to three, with their times). All-day events, events you declined and the event itself don't count. It's only a warning: you can still save.
 
 ### Project
+
+- **Tests** for the quick-add reader (English and Dutch days, dates, times and ranges) and for reading and writing custom repeats (`QuickAddTest`, `RepeatRuleTest`), run on a computer with the Kotlin compiler.
 
 - **Checksum list regenerated without the old entries.** `gradle/verification-metadata.xml` was regenerated on CI with the fixed workflow and committed exactly as printed (its SHA-256 matches the log). It now lists only the 378 components the build downloads today; the leftovers from earlier library and build-tool versions are gone.
 - **The checksum list no longer collects old entries.** The hand-started workflow that regenerates `gradle/verification-metadata.xml` used to add the new checksums to the existing file, so entries for library versions that are no longer used stayed in it. It now clears the old entries first and writes only what the build uses, and prints the file's SHA-256 so the copy that gets committed can be checked against the log. Nothing in the app changes.

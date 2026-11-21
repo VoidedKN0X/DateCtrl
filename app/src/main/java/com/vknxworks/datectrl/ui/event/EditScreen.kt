@@ -22,6 +22,8 @@ import androidx.compose.material.icons.automirrored.outlined.Notes
 import androidx.compose.material.icons.outlined.Add
 import androidx.compose.material.icons.outlined.Check
 import androidx.compose.material.icons.outlined.Close
+import androidx.compose.material.icons.outlined.EventBusy
+import androidx.compose.material.icons.outlined.Public
 import androidx.compose.material.icons.outlined.Layers
 import androidx.compose.material.icons.outlined.NotificationsNone
 import androidx.compose.material.icons.outlined.Place
@@ -61,7 +63,10 @@ import com.vknxworks.datectrl.container
 import com.vknxworks.datectrl.data.calendar.DAY_MS
 import com.vknxworks.datectrl.data.calendar.EventDetail
 import com.vknxworks.datectrl.data.calendar.EventDraft
+import com.vknxworks.datectrl.data.calendar.Freq
 import com.vknxworks.datectrl.data.calendar.Repeat
+import com.vknxworks.datectrl.data.calendar.RepeatRule
+import com.vknxworks.datectrl.data.calendar.RepeatRules
 import com.vknxworks.datectrl.ui.common.CALENDAR_COLORS
 import com.vknxworks.datectrl.ui.common.REMINDER_CHOICES
 import com.vknxworks.datectrl.ui.common.asColor
@@ -156,16 +161,21 @@ private fun draftOf(e: EventDetail, begin: Long): EventDraft {
         val s = first.atTime(9, 0).atZone(zone).toInstant().toEpochMilli()
         base.copy(startDate = first, endDate = last, start = s, end = s + 3_600_000L)
     } else {
+        // Timed events are shown in their own time zone.
+        val ez = base.z()
         base.copy(
-            startDate = Instant.ofEpochMilli(b).atZone(zone).toLocalDate(),
-            endDate = Instant.ofEpochMilli(en).atZone(zone).toLocalDate(),
+            startDate = Instant.ofEpochMilli(b).atZone(ez).toLocalDate(),
+            endDate = Instant.ofEpochMilli(en).atZone(ez).toLocalDate(),
         )
     }
 }
 
 private fun zone() = ZoneId.systemDefault()
-private fun ldt(ms: Long): LocalDateTime = Instant.ofEpochMilli(ms).atZone(zone()).toLocalDateTime()
-private fun ms(t: LocalDateTime): Long = t.atZone(zone()).toInstant().toEpochMilli()
+private fun ldt(ms: Long, z: ZoneId = zone()): LocalDateTime = Instant.ofEpochMilli(ms).atZone(z).toLocalDateTime()
+private fun ms(t: LocalDateTime, z: ZoneId = zone()): Long = t.atZone(z).toInstant().toEpochMilli()
+
+/** The event's own time zone (times in the editor are shown and picked in it); the phone's if it's unknown. */
+internal fun EventDraft.z(): ZoneId = runCatching { ZoneId.of(timeZone) }.getOrDefault(zone())
 
 /** The RRULE for a simple repeat, tied to the start day (weekday, day of the month). */
 fun rruleFor(r: Repeat, start: LocalDate, custom: String?): String? = when (r) {
@@ -198,13 +208,29 @@ private fun EditForm(original: EventDetail?, begin: Long, initial: EventDraft, d
     var pickCalendar by remember { mutableStateOf(false) }
     var pickRepeat by remember { mutableStateOf(false) }
     var addReminder by remember { mutableStateOf(false) }
+    var customReminder by remember { mutableStateOf(false) }
+    var pickZone by remember { mutableStateOf(false) }
+    var editCustom by remember { mutableStateOf(false) }
+    // A repeat the custom sheet can show and build again (every N, until, a number of times); null otherwise.
+    var custom by remember { mutableStateOf(RepeatRules.parse(initial.rrule, initial.z())) }
     var askScope by remember { mutableStateOf(false) }
     var askDiscard by remember { mutableStateOf(false) }
     var saving by remember { mutableStateOf(false) }
 
     val isException = original?.originalId != null
     val occurrence = original != null && original.repeating && begin > 0
-    val changed = d != initial || repeat != originalRepeat
+    val originalCustom = remember { RepeatRules.parse(initial.rrule, initial.z()) }
+    val changed = d != initial || repeat != originalRepeat || (repeat == Repeat.CUSTOM && custom != originalCustom)
+
+    /** The rule written for "Custom": the one built in the custom sheet, or the event's own one kept as it is. */
+    fun customRule(draft: EventDraft): String? {
+        val r = custom ?: return original?.rrule ?: initial.rrule
+        val day = if (draft.allDay) draft.startDate else Instant.ofEpochMilli(draft.start).atZone(draft.z()).toLocalDate()
+        val built = RepeatRules.build(r, day, draft.allDay, draft.z())
+        // Unchanged: keep the event's own text, so an unchanged repeat isn't rewritten.
+        val own = original?.rrule
+        return if (own != null && r == originalCustom && RepeatRules.parse(own, draft.z()) == r && repeat == originalRepeat) own else built
+    }
     val valid = if (d.allDay) !d.endDate.isBefore(d.startDate) else d.end >= d.start
 
     BackHandler(enabled = changed && !saving) { askDiscard = true }
@@ -229,10 +255,10 @@ private fun EditForm(original: EventDetail?, begin: Long, initial: EventDraft, d
                 draft = draft.copy(calendarId = made)
             }
             val savedId: Long? = when {
-                original == null -> c.calendar.insert(draft.withRule(repeat, initial.rrule))
+                original == null -> c.calendar.insert(draft.withRule(repeat, customRule(draft)))
                 occurrence && !all -> c.calendar.updateOccurrence(original, begin, draft.copy(rrule = null))
-                occurrence -> seriesDraft(original, begin, draft).withRule(repeat, original.rrule).let { if (c.calendar.update(original, it)) original.id else null }
-                else -> draft.withRule(if (isException) Repeat.NEVER else repeat, original.rrule).let { if (c.calendar.update(original, it)) original.id else null }
+                occurrence -> seriesDraft(original, begin, draft).let { sd -> sd.withRule(repeat, customRule(sd)) }.let { if (c.calendar.update(original, it)) original.id else null }
+                else -> draft.withRule(if (isException) Repeat.NEVER else repeat, customRule(draft)).let { if (c.calendar.update(original, it)) original.id else null }
             }
             saving = false
             if (savedId != null) done(savedId)
@@ -243,7 +269,7 @@ private fun EditForm(original: EventDetail?, begin: Long, initial: EventDraft, d
     fun trySave() {
         if (!valid) return
         // Changing the repeat only makes sense for the whole series.
-        if (occurrence && repeat == originalRepeat) askScope = true else save(all = true)
+        if (occurrence && repeat == originalRepeat && (repeat != Repeat.CUSTOM || custom == originalCustom)) askScope = true else save(all = true)
     }
 
     Column(Modifier.fillMaxSize()) {
@@ -272,18 +298,49 @@ private fun EditForm(original: EventDetail?, begin: Long, initial: EventDraft, d
                     GroupRow(stringResource(R.string.starts), value = dateMedium(d.startDate), icon = Icons.Outlined.Schedule, onClick = { picker = Picker.START_DATE })
                     GroupRow(stringResource(R.string.ends), value = dateMedium(d.endDate), titleColor = if (valid) CtrlColors.Text else CtrlColors.Error, onClick = { picker = Picker.END_DATE })
                 } else {
-                    DateTimeRow(context, stringResource(R.string.starts), d.start, true, { picker = Picker.START_DATE }, { picker = Picker.START_TIME })
-                    DateTimeRow(context, stringResource(R.string.ends), d.end, valid, { picker = Picker.END_DATE }, { picker = Picker.END_TIME })
+                    DateTimeRow(context, stringResource(R.string.starts), d.start, true, d.z(), { picker = Picker.START_DATE }, { picker = Picker.START_TIME })
+                    DateTimeRow(context, stringResource(R.string.ends), d.end, valid, d.z(), { picker = Picker.END_DATE }, { picker = Picker.END_TIME })
+                    // Times are picked in the event's own time zone; another one shows what that is here.
+                    val here = ZoneId.systemDefault()
+                    GroupRow(
+                        stringResource(R.string.time_zone),
+                        if (d.z().rules.getOffset(Instant.ofEpochMilli(d.start)) != here.rules.getOffset(Instant.ofEpochMilli(d.start))) {
+                            stringResource(R.string.time_zone_here, timeText(context, d.start, here), timeText(context, d.end, here))
+                        } else {
+                            null
+                        },
+                        icon = Icons.Outlined.Public,
+                        value = zoneLabel(d.z(), d.start),
+                        onClick = { pickZone = true },
+                    )
                 }
                 if (!isException) {
                     GroupRow(
-                        stringResource(R.string.repeat), repeatLabel(rruleFor(repeat, d.startDate, original?.rrule)),
+                        stringResource(R.string.repeat), repeatLabel(rruleFor(repeat, d.startDate, customRule(d)), d.z()),
                         icon = Icons.Outlined.Repeat, showChevron = true, onClick = { pickRepeat = true },
                     )
                 }
             }
             if (!valid) {
                 WarningCard(stringResource(R.string.end_before_start), Icons.Outlined.Schedule, Modifier.padding(horizontal = Gutter, vertical = 4.dp))
+            } else if (!d.allDay) {
+                // Other events at the same time (not all-day ones, not ones you declined, not this event itself).
+                val clashes by produceState(emptyList<com.vknxworks.datectrl.data.calendar.Instance>(), d.start, d.end) {
+                    value = if (d.end > d.start) {
+                        c.calendar.instances(d.start - 1, d.end + 1).filter {
+                            !it.allDay && !it.declined && it.eventId != original?.id && it.eventId != original?.originalId &&
+                                it.begin < d.end && it.end > d.start
+                        }
+                    } else {
+                        emptyList()
+                    }
+                }
+                if (clashes.isNotEmpty()) {
+                    val list = clashes.take(3).joinToString("\n") { e ->
+                        e.title.ifBlank { context.getString(R.string.no_title) } + " · " + timeText(context, e.begin) + "–" + timeText(context, e.end)
+                    } + if (clashes.size > 3) "\n" + context.resources.getQuantityString(R.plurals.overlap_more, clashes.size - 3, clashes.size - 3) else ""
+                    WarningCard(stringResource(R.string.overlap_warning, list), Icons.Outlined.EventBusy, Modifier.padding(horizontal = Gutter, vertical = 4.dp))
+                }
             }
 
             Group {
@@ -330,7 +387,7 @@ private fun EditForm(original: EventDetail?, begin: Long, initial: EventDraft, d
                         },
                     )
                 }
-                if (d.reminders.size < 5) {
+                if (d.reminders.size < MAX_REMINDERS) {
                     GroupRow(stringResource(R.string.add_reminder), icon = Icons.Outlined.Add, iconTint = CtrlColors.AccentText, titleColor = CtrlColors.AccentText, onClick = { addReminder = true })
                 }
             }
@@ -338,10 +395,10 @@ private fun EditForm(original: EventDetail?, begin: Long, initial: EventDraft, d
     }
 
     when (picker) {
-        Picker.START_DATE -> DateDialog(if (d.allDay) d.startDate else ldt(d.start).toLocalDate(), { picker = null }) { day -> d = setStartDate(d, day) }
-        Picker.END_DATE -> DateDialog(if (d.allDay) d.endDate else ldt(d.end).toLocalDate(), { picker = null }) { day -> d = setEndDate(d, day) }
-        Picker.START_TIME -> TimeDialog(ldt(d.start).toLocalTime(), { picker = null }) { t -> d = setStartTime(d, t) }
-        Picker.END_TIME -> TimeDialog(ldt(d.end).toLocalTime(), { picker = null }) { t -> d = setEndTime(d, t) }
+        Picker.START_DATE -> DateDialog(if (d.allDay) d.startDate else ldt(d.start, d.z()).toLocalDate(), { picker = null }) { day -> d = setStartDate(d, day) }
+        Picker.END_DATE -> DateDialog(if (d.allDay) d.endDate else ldt(d.end, d.z()).toLocalDate(), { picker = null }) { day -> d = setEndDate(d, day) }
+        Picker.START_TIME -> TimeDialog(ldt(d.start, d.z()).toLocalTime(), { picker = null }) { t -> d = setStartTime(d, t) }
+        Picker.END_TIME -> TimeDialog(ldt(d.end, d.z()).toLocalTime(), { picker = null }) { t -> d = setEndTime(d, t) }
         null -> {}
     }
     if (pickCalendar) {
@@ -351,28 +408,67 @@ private fun EditForm(original: EventDetail?, begin: Long, initial: EventDraft, d
         }
     }
     if (pickRepeat) {
-        val options = buildList {
+        // null stands for "Custom…", which opens the custom repeat sheet.
+        val options = buildList<Pair<Repeat?, String>> {
             add(Repeat.NEVER to stringResource(R.string.repeat_never))
             add(Repeat.DAILY to stringResource(R.string.repeat_daily))
             add(Repeat.WEEKLY to stringResource(R.string.repeat_weekly_on, com.vknxworks.datectrl.ui.common.dayShort(d.startDate.dayOfWeek)))
             add(Repeat.MONTHLY to stringResource(R.string.repeat_monthly_on, d.startDate.dayOfMonth))
             add(Repeat.YEARLY to stringResource(R.string.repeat_yearly))
-            if (originalRepeat == Repeat.CUSTOM) add(Repeat.CUSTOM to stringResource(R.string.repeat_custom_keep))
+            // The event's own rule that the custom sheet can't show stays available as it is.
+            if (originalRepeat == Repeat.CUSTOM && originalCustom == null) add(Repeat.CUSTOM to stringResource(R.string.repeat_custom_keep))
+            add(null to stringResource(R.string.repeat_custom_build))
         }
-        ChoiceSheet(stringResource(R.string.repeat), options, repeat, onDismiss = { pickRepeat = false }) { r ->
-            repeat = r
+        ChoiceSheet(stringResource(R.string.repeat), options, if (repeat == Repeat.CUSTOM && custom != null) null else repeat, onDismiss = { pickRepeat = false }) { r ->
             pickRepeat = false
+            if (r == null) {
+                editCustom = true
+            } else {
+                repeat = r
+                if (r == Repeat.CUSTOM) custom = null
+            }
+        }
+    }
+    if (editCustom) {
+        val startDay = if (d.allDay) d.startDate else ldt(d.start, d.z()).toLocalDate()
+        RepeatSheet(
+            initial = custom ?: RepeatRule(
+                when (repeat) {
+                    Repeat.DAILY -> Freq.DAILY
+                    Repeat.MONTHLY -> Freq.MONTHLY
+                    Repeat.YEARLY -> Freq.YEARLY
+                    else -> Freq.WEEKLY
+                },
+            ),
+            start = startDay,
+            onDismiss = { editCustom = false },
+        ) { r ->
+            editCustom = false
+            custom = r
+            repeat = Repeat.CUSTOM
+        }
+    }
+    if (pickZone) {
+        ZoneSheet(d.z(), d.start, onDismiss = { pickZone = false }) { z ->
+            pickZone = false
+            d = changeZone(d, z)
+        }
+    }
+    if (customReminder) {
+        CustomReminderDialog(onDismiss = { customReminder = false }) { m ->
+            customReminder = false
+            d = d.copy(reminders = (d.reminders + m).distinct())
         }
     }
     if (addReminder) {
         ChoiceSheet(
             stringResource(R.string.add_reminder),
-            REMINDER_CHOICES.filter { it !in d.reminders }.map { it to reminderText(context, it) },
+            REMINDER_CHOICES.filter { it !in d.reminders }.map { it to reminderText(context, it) } + (CUSTOM_REMINDER to stringResource(R.string.reminder_custom)),
             null,
             onDismiss = { addReminder = false },
         ) { m ->
-            d = d.copy(reminders = (d.reminders + m).distinct())
             addReminder = false
+            if (m == CUSTOM_REMINDER) customReminder = true else d = d.copy(reminders = (d.reminders + m).distinct())
         }
     }
     if (askScope && original != null) {
@@ -402,21 +498,35 @@ private fun EditForm(original: EventDetail?, begin: Long, initial: EventDraft, d
 
 /** A start or end row: the date and the time, each tappable. */
 @Composable
-private fun DateTimeRow(context: Context, label: String, millis: Long, ok: Boolean, onDate: () -> Unit, onTime: () -> Unit) {
+private fun DateTimeRow(context: Context, label: String, millis: Long, ok: Boolean, zone: ZoneId, onDate: () -> Unit, onTime: () -> Unit) {
     GroupRow(
         label,
         titleColor = if (ok) CtrlColors.Text else CtrlColors.Error,
         trailing = {
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                TextButton(onClick = onDate) { Text(dateMedium(ldt(millis).toLocalDate()), color = CtrlColors.Text) }
-                TextButton(onClick = onTime) { Text(timeText(context, millis), color = CtrlColors.AccentText) }
+                TextButton(onClick = onDate) { Text(dateMedium(ldt(millis, zone).toLocalDate()), color = CtrlColors.Text) }
+                TextButton(onClick = onTime) { Text(timeText(context, millis, zone), color = CtrlColors.AccentText) }
             }
         },
     )
 }
 
+/** Marks "Custom…" in the reminder list. */
+private const val CUSTOM_REMINDER = -1
+
+/** The most reminders one event can have here (as before: calendar accounts often allow no more than 5). */
+private const val MAX_REMINDERS = 5
+
+/** Another time zone keeps the times on the clock: 14:00 stays 14:00, now in [z]. */
+private fun changeZone(d: EventDraft, z: ZoneId): EventDraft {
+    val old = d.z()
+    val s = ldt(d.start, old).atZone(z).toInstant().toEpochMilli()
+    val e = ldt(d.end, old).atZone(z).toInstant().toEpochMilli()
+    return d.copy(timeZone = z.id, start = s, end = e)
+}
+
 private fun EventDraft.withRule(r: Repeat, custom: String?): EventDraft {
-    val day = if (allDay) startDate else ldt(start).toLocalDate()
+    val day = if (allDay) startDate else ldt(start, z()).toLocalDate()
     val rule = rruleFor(r, day, custom)
     // Keep the event's own rule when it means the same, so an unchanged repeat isn't rewritten.
     if (custom != null && rule != null && Repeat.of(custom) == r) {
@@ -449,12 +559,12 @@ private fun seriesDraft(series: EventDetail, begin: Long, d: EventDraft): EventD
 private fun toggleAllDay(d: EventDraft, on: Boolean, defaultMinutes: Int): EventDraft {
     if (on == d.allDay) return d
     return if (on) {
-        val first = ldt(d.start).toLocalDate()
-        val lastRaw = ldt((d.end - 1).coerceAtLeast(d.start)).toLocalDate()
+        val first = ldt(d.start, d.z()).toLocalDate()
+        val lastRaw = ldt((d.end - 1).coerceAtLeast(d.start), d.z()).toLocalDate()
         d.copy(allDay = true, startDate = first, endDate = if (lastRaw.isBefore(first)) first else lastRaw)
     } else {
-        val s = ms(d.startDate.atTime(ldt(d.start).toLocalTime()))
-        val endOnLast = ms(d.endDate.atTime(ldt(d.end).toLocalTime()))
+        val s = ms(d.startDate.atTime(ldt(d.start, d.z()).toLocalTime()), d.z())
+        val endOnLast = ms(d.endDate.atTime(ldt(d.end, d.z()).toLocalTime()), d.z())
         d.copy(allDay = false, start = s, end = if (endOnLast > s) endOnLast else s + defaultMinutes * 60_000L)
     }
 }
@@ -462,23 +572,23 @@ private fun toggleAllDay(d: EventDraft, on: Boolean, defaultMinutes: Int): Event
 private fun setStartDate(d: EventDraft, day: LocalDate): EventDraft {
     val len = ChronoUnit.DAYS.between(d.startDate, d.endDate).coerceAtLeast(0)
     val dur = (d.end - d.start).coerceAtLeast(0)
-    val s = ms(day.atTime(ldt(d.start).toLocalTime()))
+    val s = ms(day.atTime(ldt(d.start, d.z()).toLocalTime()), d.z())
     return d.copy(startDate = day, endDate = day.plusDays(len), start = s, end = s + dur)
 }
 
 private fun setEndDate(d: EventDraft, day: LocalDate): EventDraft =
-    d.copy(endDate = day, end = ms(day.atTime(ldt(d.end).toLocalTime())))
+    d.copy(endDate = day, end = ms(day.atTime(ldt(d.end, d.z()).toLocalTime()), d.z()))
 
 private fun setStartTime(d: EventDraft, t: LocalTime): EventDraft {
     val dur = (d.end - d.start).coerceAtLeast(0)
-    val s = ms(ldt(d.start).toLocalDate().atTime(t))
+    val s = ms(ldt(d.start, d.z()).toLocalDate().atTime(t), d.z())
     return d.copy(start = s, end = s + dur)
 }
 
 private fun setEndTime(d: EventDraft, t: LocalTime): EventDraft {
-    var e = ms(ldt(d.end).toLocalDate().atTime(t))
+    var e = ms(ldt(d.end, d.z()).toLocalDate().atTime(t), d.z())
     // Picking an earlier time on the same day as the start usually means the next day (a late-night event).
-    if (e < d.start && ldt(d.end).toLocalDate() == ldt(d.start).toLocalDate() && t.isBefore(ldt(d.start).toLocalTime())) e = ms(ldt(d.end).toLocalDate().plusDays(1).atTime(t))
+    if (e < d.start && ldt(d.end, d.z()).toLocalDate() == ldt(d.start, d.z()).toLocalDate() && t.isBefore(ldt(d.start, d.z()).toLocalTime())) e = ms(ldt(d.end, d.z()).toLocalDate().plusDays(1).atTime(t), d.z())
     return d.copy(end = e)
 }
 

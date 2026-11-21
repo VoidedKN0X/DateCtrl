@@ -55,6 +55,19 @@ data class Instance(
     val key: String get() = "$eventId@$begin"
 }
 
+/** An event found by a search (for a repeating event, its first occurrence). */
+data class SearchHit(
+    val eventId: Long,
+    val title: String,
+    val location: String,
+    val begin: Long,
+    val end: Long,
+    val allDay: Boolean,
+    val repeating: Boolean,
+    val calendarId: Long,
+    val color: Int,
+)
+
 data class Attendee(val name: String, val email: String, val status: Int, val organizer: Boolean)
 
 /** Everything about one event, for the detail and edit screens. */

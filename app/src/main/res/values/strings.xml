@@ -239,4 +239,75 @@
         <item quantity="one">The calendar and its %1$d event are deleted from this phone. This can\'t be undone.</item>
         <item quantity="other">The calendar and its %1$d events are deleted from this phone. This can\'t be undone.</item>
     </plurals>
+
+    <!-- Quick add -->
+    <string name="quick_add">Quick add</string>
+    <string name="quick_add_hint">dentist friday 14:00</string>
+    <string name="quick_add_help">Type an event the way you\'d say it, in English or Dutch: \"lunch with Anna tomorrow 12:30-13:30\", \"tandarts vrijdag om 14u\", \"birthday 3 dec\". It\'s read on this phone; nothing is sent anywhere.</string>
+    <string name="quick_add_all_day">%1$s · all day</string>
+    <string name="quick_add_preview">%1$s\n%2$s</string>
+    <string name="quick_add_continue">Continue</string>
+
+    <!-- Search -->
+    <string name="search_upcoming">Coming up</string>
+    <string name="search_repeating">Repeating events</string>
+    <string name="search_past">Past</string>
+    <string name="no_results_all_body">No event in your visible calendars has this in its title, place or description, at any time.</string>
+
+    <!-- Time zone and overlaps -->
+    <string name="time_zone">Time zone</string>
+    <string name="time_zone_here">On this phone: %1$s – %2$s</string>
+    <string name="time_zone_search">City or region</string>
+    <string name="time_zone_phone">%1$s · this phone</string>
+    <string name="overlap_warning">At the same time as:\n%1$s</string>
+    <plurals name="overlap_more">
+        <item quantity="one">and %d more</item>
+        <item quantity="other">and %d more</item>
+    </plurals>
+
+    <!-- Custom repeat -->
+    <string name="repeat_custom_build">Custom…</string>
+    <string name="repeat_custom_title">Custom repeat</string>
+    <string name="repeat_every">Every</string>
+    <string name="unit_minutes">minutes</string>
+    <string name="unit_hours">hours</string>
+    <string name="unit_days">days</string>
+    <string name="unit_weeks">weeks</string>
+    <string name="unit_months">months</string>
+    <string name="unit_years">years</string>
+    <string name="repeat_on_weekday">On %1$s, the weekday it starts on</string>
+    <string name="repeat_on_monthday">On day %1$d of the month, the day it starts on</string>
+    <string name="repeat_ends">Ends</string>
+    <string name="repeat_ends_never">Never</string>
+    <string name="repeat_ends_on">On a date</string>
+    <string name="repeat_ends_after">After a number of times</string>
+    <string name="repeat_last_day">Last time on or before %1$s</string>
+    <string name="repeat_times_unit">times</string>
+    <string name="repeat_invalid">Every 1 to 99, at most 999 times, and an end date that isn\'t before the start.</string>
+    <plurals name="repeat_every_days">
+        <item quantity="one">Every day</item>
+        <item quantity="other">Every %d days</item>
+    </plurals>
+    <plurals name="repeat_every_weeks">
+        <item quantity="one">Every week</item>
+        <item quantity="other">Every %d weeks</item>
+    </plurals>
+    <plurals name="repeat_every_months">
+        <item quantity="one">Every month</item>
+        <item quantity="other">Every %d months</item>
+    </plurals>
+    <plurals name="repeat_every_years">
+        <item quantity="one">Every year</item>
+        <item quantity="other">Every %d years</item>
+    </plurals>
+    <string name="repeat_until">%1$s, until %2$s</string>
+    <plurals name="repeat_times">
+        <item quantity="one">%1$s, %2$d time</item>
+        <item quantity="other">%1$s, %2$d times</item>
+    </plurals>
+
+    <!-- Custom reminder -->
+    <string name="reminder_custom">Custom reminder…</string>
+    <string name="reminder_custom_before">before the event</string>
+    <string name="reminder_custom_invalid">From 1 minute to 4 weeks before.</string>
 </resources>

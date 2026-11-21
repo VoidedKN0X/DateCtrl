@@ -217,7 +217,7 @@ fun reminderText(context: Context, minutes: Int): String = when {
 }
 
 /** The reminders the editor offers. */
-val REMINDER_CHOICES = listOf(0, 5, 10, 15, 30, 60, 120, 1440, 2880, 10080)
+val REMINDER_CHOICES = listOf(0, 5, 10, 15, 20, 30, 45, 60, 90, 120, 180, 1440, 2880, 4320, 10080, 20160)
 
 /** Colours for new calendars (the Ctrl accent first). */
 val CALENDAR_COLORS = listOf(
