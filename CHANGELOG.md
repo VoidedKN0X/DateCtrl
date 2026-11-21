@@ -19,6 +19,8 @@ Changes on `main` that aren't in a release yet. They ship with the next version.
 
 - **Settings export and import.** **Settings → Export and import** saves the first day of the week, week numbers, the default length and reminder for new events, reminder notifications and Hide in screenshots / Hide in recent apps as a JSON file in a place you pick, and reads such a file back after saying what it replaces. It never holds events (those go in .ics files), the default calendar (calendar ids only mean something on one phone), the app lock, its PIN or **Lock again**; importing can only turn the two Hide switches on, and values out of range are skipped.
 
+- **DateCtrl in Dutch.** When your phone is set to Dutch, DateCtrl shows everything in Dutch (informal "je"), including reminder notifications and their channel; in any other language it stays English. There is no language setting in the app: it follows the phone. Day and month names already followed the phone's language and still do.
+
 ### Project
 
 - **Tests** for the quick-add reader (English and Dutch days, dates, times and ranges) and for reading and writing custom repeats (`QuickAddTest`, `RepeatRuleTest`) and for applying a settings file (`SettingsBackupTest`), run on a computer with the Kotlin compiler.

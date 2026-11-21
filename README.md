@@ -24,6 +24,7 @@ Part of the [Ctrl series](#the-ctrl-series) by VKNXWorks.
 - **Import and export .ics files:** import an .ics file (from the file picker, or opened or shared from another app) into the calendar you pick, after seeing what's in it, with events already in that calendar skipped; export a whole calendar or a date range as an .ics file, or share one event
 - **Export and import your settings** as a file (never events, calendars or the app lock)
 - **App lock** with its own PIN and optional fingerprint unlock, and **Hide in screenshots** / **Hide in recent apps** (both off until you turn them on)
+- **English and Dutch**, following your phone's language
 - **Ctrl / Signal look**, shared by every Ctrl app: dark and light, following your phone's dark theme setting, high contrast, one violet accent, Space Grotesk and JetBrains Mono; landscape, tablet and foldable layouts
 
 ## Requirements
