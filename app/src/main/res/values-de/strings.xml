@@ -219,8 +219,8 @@
         <item quantity="other">Der Kalender und seine %1$d Termine werden von diesem Smartphone gelöscht. Das kann nicht rückgängig gemacht werden.</item>
     </plurals>
     <string name="quick_add">Schnell hinzufügen</string>
-    <string name="quick_add_hint">dentist friday 14:00</string>
-    <string name="quick_add_help">Gib einen Termin so ein, wie du ihn sagen würdest, auf Englisch oder Niederländisch (Schnell hinzufügen versteht nur diese beiden Sprachen): \"lunch with Anna tomorrow 12:30-13:30\", \"tandarts vrijdag om 14u\", \"birthday 3 dec\". Der Text wird auf diesem Smartphone gelesen; nichts wird versendet.</string>
+    <string name="quick_add_hint">Zahnarzt Freitag 14 Uhr</string>
+    <string name="quick_add_help">Gib einen Termin so ein, wie du ihn sagen würdest, auf Deutsch, Englisch, Niederländisch oder Französisch: \"Zahnarzt Freitag um 14 Uhr\", \"Mittagessen mit Anna morgen 12:30-13:30\", \"Geburtstag 3. Dezember\". Der Text wird auf diesem Smartphone gelesen; nichts wird versendet.</string>
     <string name="quick_add_all_day">%1$s · ganztägig</string>
     <string name="quick_add_preview">%1$s\n%2$s</string>
     <string name="quick_add_continue">Weiter</string>

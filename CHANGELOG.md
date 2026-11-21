@@ -4,6 +4,17 @@ What changed in each DateCtrl release. Every release on the [Releases page](http
 
 To publish a new version: bump `versionCode` and `versionName` in `app/build.gradle.kts`, add a section here, and push to `main`. Pushes without a version bump only build; they don't make a release.
 
+## Unreleased
+
+### New
+
+- **Quick add understands French and German.** Besides English and Dutch, Quick add now reads French and German sentences, for example "dentiste vendredi à 14h30", "réunion lundi de 14h à 16h", "anniversaire le 3 décembre", "marché samedi prochain", "Zahnarzt Freitag um 14 Uhr", "Besprechung Montag von 14 bis 16 Uhr", "Geburtstag 3. März" or "Kino heute Abend". It knows the weekday and month names (full weekday names only, so words like "mar" or "so" aren't mistaken for days), aujourd'hui/heute, ce soir/heute Abend, demain/morgen, après-demain/übermorgen, "dans 3 jours"/"in 3 Tagen", "semaine prochaine"/"nächste Woche", "1er mars", times like 14h, 14h30, 14:30, 14 Uhr and 14:30 Uhr, and ranges with "à" or "bis". As before, everything is read on the phone and you check the result in the editor before saving.
+- **Tests** for the French and German quick-add sentences, and a check that English and Dutch read as before (`QuickAddTest`, run on a computer with the Kotlin compiler: all 12 tests pass).
+
+### Changed
+
+- **Quick add help and example in all four languages.** The help text now says Quick add understands English, Dutch, French and German, with examples in your language, and the example in the text field is French or German on a French or German phone (it was English there, because Quick add didn't read those languages yet).
+
 ## v0.5.0 (2026-11-21)
 
 Built and checked by CI only: nothing in this release had been run on a phone when it was published.

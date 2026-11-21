@@ -243,7 +243,7 @@
     <!-- Quick add -->
     <string name="quick_add">Quick add</string>
     <string name="quick_add_hint">dentist friday 14:00</string>
-    <string name="quick_add_help">Type an event the way you\'d say it, in English or Dutch: \"lunch with Anna tomorrow 12:30-13:30\", \"tandarts vrijdag om 14u\", \"birthday 3 dec\". It\'s read on this phone; nothing is sent anywhere.</string>
+    <string name="quick_add_help">Type an event the way you\'d say it, in English, Dutch, French or German: \"lunch with Anna tomorrow 12:30-13:30\", \"tandarts vrijdag om 14u\", \"dentiste vendredi à 14h30\", \"Zahnarzt Freitag um 14 Uhr\". It\'s read on this phone; nothing is sent anywhere.</string>
     <string name="quick_add_all_day">%1$s · all day</string>
     <string name="quick_add_preview">%1$s\n%2$s</string>
     <string name="quick_add_continue">Continue</string>

@@ -15,7 +15,7 @@ Part of the [Ctrl series](#the-ctrl-series) by VKNXWorks.
 - **Works fully offline.** DateCtrl doesn't have the internet permission and never goes online. It reads and writes Android's own calendar storage, so accounts keep syncing through their own apps
 - **Month view** with a dot per event under each day, swipe between months, Today, week numbers if you want them, and the chosen day's events below
 - **Agenda:** upcoming events day by day, three months ahead and more on request. **Search** looks through every event in your calendars, past and future, by title, place or description
-- **Quick add:** type "dentist friday 14:00" or "tandarts vrijdag om 14u" (English or Dutch), check what it understood and finish in the editor. Read on the phone, never sent anywhere
+- **Quick add:** type "dentist friday 14:00", "tandarts vrijdag om 14u", "dentiste vendredi à 14h30" or "Zahnarzt Freitag um 14 Uhr" (English, Dutch, French or German), check what it understood and finish in the editor. Read on the phone, never sent anywhere
 - **Events** with title, all-day or start and end time, repeat (daily, weekly, monthly, yearly, or custom: every N days, weeks, months or years, until a date or a number of times; other repeats from other apps are kept), its own time zone, calendar, place, description and up to five reminders from 5 minutes to 2 weeks before or a custom time up to 4 weeks. A warning shows when it overlaps another event. Repeating events can be changed or deleted for one occurrence or the whole series
 - **Event details:** time, calendar, repeat, place (opens in your maps app), description, reminders and the guest list with replies
 - **Reminders** as notifications with Snooze (10 minutes) and Dismiss; on the lock screen they show the event only when your phone allows private notification content
@@ -24,7 +24,7 @@ Part of the [Ctrl series](#the-ctrl-series) by VKNXWorks.
 - **Import and export .ics files:** import an .ics file (from the file picker, or opened or shared from another app) into the calendar you pick, after seeing what's in it, with events already in that calendar skipped; export a whole calendar or a date range as an .ics file, or share one event
 - **Export and import your settings** as a file (never events, calendars or the app lock)
 - **App lock** with its own PIN and optional fingerprint unlock, and **Hide in screenshots** / **Hide in recent apps** (both off until you turn them on)
-- **English, Dutch, French and German**, following your phone's language (Quick add still reads English and Dutch only)
+- **English, Dutch, French and German**, following your phone's language (Quick add reads all four)
 - **Ctrl / Signal look**, shared by every Ctrl app: dark and light, following your phone's dark theme setting, high contrast, one violet accent, Space Grotesk and JetBrains Mono; landscape, tablet and foldable layouts
 
 ## Requirements

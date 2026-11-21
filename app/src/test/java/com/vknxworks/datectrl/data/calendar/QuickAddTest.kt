@@ -103,6 +103,85 @@ class QuickAddTest {
         assertEquals(t(0, 30), p("x 12:30am").start)
     }
 
+    @Test fun french() {
+        val a = p("Dentiste vendredi à 14h30")
+        assertEquals("Dentiste", a.title)
+        assertEquals(LocalDate.of(2026, 11, 27), a.date)
+        assertEquals(t(14, 30), a.start)
+        assertTrue(a.dateGiven)
+        val b = p("réunion lundi de 14h à 16h")
+        assertEquals("réunion", b.title)
+        assertEquals(LocalDate.of(2026, 11, 23), b.date)
+        assertEquals(t(14), b.start)
+        assertEquals(t(16), b.end)
+        assertEquals(today, p("courses aujourd'hui").date)
+        assertEquals(today, p("courses aujourd\u2019hui").date)
+        assertEquals("courses", p("courses aujourd'hui").title)
+        assertEquals(today.plusDays(1), p("coiffeur demain 9h").date)
+        assertEquals(t(9), p("coiffeur demain 9h").start)
+        assertEquals(today.plusDays(2), p("coiffeur après-demain").date)
+        assertEquals(today, p("cinéma ce soir 20:15").date)
+        assertEquals("cinéma", p("cinéma ce soir 20:15").title)
+        // Saturday today: "samedi prochain" is a week later, "ce samedi" is today.
+        assertEquals(today.plusDays(7), p("marché samedi prochain").date)
+        assertEquals("marché", p("marché samedi prochain").title)
+        assertEquals(today, p("marché ce samedi").date)
+        assertEquals(LocalDate.of(2026, 11, 23), p("début la semaine prochaine").date)
+        assertEquals("début", p("début la semaine prochaine").title)
+        assertEquals(today.plusDays(3), p("contrôle dans 3 jours").date)
+        assertEquals(today.plusWeeks(2), p("contrôle dans 2 semaines").date)
+        assertEquals(LocalDate.of(2026, 12, 3), p("anniversaire le 3 décembre").date)
+        assertEquals("anniversaire", p("anniversaire le 3 décembre").title)
+        assertEquals(LocalDate.of(2027, 3, 1), p("fête 1er mars").date)
+        assertEquals(LocalDate.of(2027, 8, 15), p("x 15 août").date)
+        assertEquals(t(12), p("déjeuner à 12").start)
+        assertEquals("déjeuner", p("déjeuner à 12").title)
+    }
+
+    @Test fun german() {
+        val a = p("Zahnarzt Freitag um 14 Uhr")
+        assertEquals("Zahnarzt", a.title)
+        assertEquals(LocalDate.of(2026, 11, 27), a.date)
+        assertEquals(t(14), a.start)
+        assertNull(a.end)
+        val b = p("Besprechung Montag von 14 bis 16 Uhr")
+        assertEquals("Besprechung", b.title)
+        assertEquals(LocalDate.of(2026, 11, 23), b.date)
+        assertEquals(t(14), b.start)
+        assertEquals(t(16), b.end)
+        val c = p("Training am Dienstag 18:30 Uhr")
+        assertEquals("Training", c.title)
+        assertEquals(LocalDate.of(2026, 11, 24), c.date)
+        assertEquals(t(18, 30), c.start)
+        val d = p("Anruf 14-16 Uhr")
+        assertEquals("Anruf", d.title)
+        assertEquals(t(14), d.start)
+        assertEquals(t(16), d.end)
+        assertEquals(today, p("Einkaufen heute").date)
+        assertEquals(today, p("Kino heute Abend").date)
+        assertEquals("Kino", p("Kino heute Abend").title)
+        assertEquals(today.plusDays(1), p("Friseur morgen 9:00").date)
+        assertEquals(today.plusDays(2), p("Friseur übermorgen").date)
+        assertEquals(today.plusDays(7), p("Markt nächsten Samstag").date)
+        assertEquals("Markt", p("Markt nächsten Samstag").title)
+        assertEquals(LocalDate.of(2026, 11, 23), p("Start nächste Woche").date)
+        assertEquals(today.plusDays(3), p("Kontrolle in 3 Tagen").date)
+        assertEquals(today.plusWeeks(2), p("Kontrolle in 2 Wochen").date)
+        assertEquals(LocalDate.of(2027, 3, 3), p("Geburtstag 3. März").date)
+        assertEquals("Geburtstag", p("Geburtstag am 3. März").title)
+        assertEquals(LocalDate.of(2026, 12, 24), p("Feier 24. Dezember").date)
+        // A number without "Uhr" or "um" stays in the title.
+        assertEquals("Raum 12 Treffen", p("Raum 12 Treffen morgen").title)
+        assertNull(p("Raum 12 Treffen morgen").start)
+    }
+
+    @Test fun englishAndDutchUnchangedByTheNewWords() {
+        // "mar" stays March, not a French Tuesday.
+        assertEquals(LocalDate.of(2027, 3, 3), p("x mar 3").date)
+        assertEquals(t(14), p("tandarts vrijdag om 14u").start)
+        assertEquals("tandarts", p("tandarts vrijdag om 14u").title)
+    }
+
     @Test fun emptyIsNull() {
         assertNull(QuickAdd.parse("   ", today))
     }

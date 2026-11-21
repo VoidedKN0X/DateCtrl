@@ -219,8 +219,8 @@
         <item quantity="other">L\'agenda et ses %1$d événements sont supprimés de ce téléphone. Cette action est irréversible.</item>
     </plurals>
     <string name="quick_add">Ajout rapide</string>
-    <string name="quick_add_hint">dentist friday 14:00</string>
-    <string name="quick_add_help">Tapez un événement comme vous le diriez, en anglais ou en néerlandais (l\'ajout rapide ne comprend que ces deux langues) : \"lunch with Anna tomorrow 12:30-13:30\", \"tandarts vrijdag om 14u\", \"birthday 3 dec\". Le texte est lu sur ce téléphone ; rien n\'est envoyé.</string>
+    <string name="quick_add_hint">dentiste vendredi 14h</string>
+    <string name="quick_add_help">Tapez un événement comme vous le diriez, en français, anglais, néerlandais ou allemand : \"dentiste vendredi à 14h30\", \"déjeuner avec Anna demain 12:30-13:30\", \"anniversaire le 3 décembre\". Le texte est lu sur ce téléphone ; rien n\'est envoyé.</string>
     <string name="quick_add_all_day">%1$s · toute la journée</string>
     <string name="quick_add_preview">%1$s\n%2$s</string>
     <string name="quick_add_continue">Continuer</string>

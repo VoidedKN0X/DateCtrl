@@ -221,7 +221,7 @@
     </plurals>
     <string name="quick_add">Snel toevoegen</string>
     <string name="quick_add_hint">tandarts vrijdag 14:00</string>
-    <string name="quick_add_help">Typ een afspraak zoals je ze zou zeggen, in het Nederlands of Engels: \"tandarts vrijdag om 14u\", \"lunch met Anna morgen 12:30-13:30\", \"verjaardag 3 dec\". Ze wordt op deze telefoon gelezen; er wordt niets verstuurd.</string>
+    <string name="quick_add_help">Typ een afspraak zoals je ze zou zeggen, in het Nederlands, Engels, Frans of Duits: \"tandarts vrijdag om 14u\", \"lunch met Anna morgen 12:30-13:30\", \"verjaardag 3 dec\". Ze wordt op deze telefoon gelezen; er wordt niets verstuurd.</string>
     <string name="quick_add_all_day">%1$s · hele dag</string>
     <string name="quick_add_preview">%1$s\n%2$s</string>
     <string name="quick_add_continue">Verder</string>
