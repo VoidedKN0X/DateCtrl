@@ -4,6 +4,23 @@ What changed in each DateCtrl release. Every release on the [Releases page](http
 
 To publish a new version: bump `versionCode` and `versionName` in `app/build.gradle.kts`, add a section here, and push to `main`. Pushes without a version bump only build; they don't make a release.
 
+## Unreleased
+
+Built and checked by CI only: nothing here has been run on a phone yet.
+
+### Fixed
+
+- **A snoozed reminder is no longer lost when DateCtrl is closed or the phone restarts.** Snooze used to live only in an alarm inside DateCtrl, which Android forgets on a restart. Like the phone's standard calendar app, DateCtrl now writes a snooze into the phone's calendar storage as a new reminder for that event, 10 minutes later (the one you snoozed is marked done). If the phone was off or restarting when the snooze was due, the calendar storage sends it again when it starts, and any other reminder that comes in also brings along a snooze that is due. While DateCtrl can run, its own alarm still shows it. Without permission to change calendars, snooze works as before.
+- **Snooze timing is unchanged:** DateCtrl has no permission for exact alarms, so Android may still show a snoozed reminder up to about 10 minutes later than the 10 minutes you asked for. Making it exact would need the "Alarms & reminders" permission, which DateCtrl doesn't ask for.
+
+### Changed
+
+- **Quick add does less work per key press.** The text you type in Quick add is now read with patterns prepared once, instead of building some of them again on every key press. It understands the same things as before.
+
+### Security
+
+- **A shared event doesn't stay in DateCtrl's cache.** Sharing an event writes it as a temporary .ics file (title, place and notes in plain text) that was only removed the next time you shared something, so it could stay for weeks. Left-over shared files are now also removed when DateCtrl starts and when the app lock locks, once they are an hour old or from an earlier run.
+
 ## v0.6.0 (2026-11-21)
 
 Built and checked by CI only: nothing in this release had been run on a phone when it was published.

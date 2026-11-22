@@ -4,6 +4,7 @@ import android.content.Context
 import com.vknxworks.datectrl.data.calendar.CalendarRepository
 import com.vknxworks.datectrl.data.calendar.EventDraft
 import com.vknxworks.datectrl.data.calendar.IcsStore
+import com.vknxworks.datectrl.data.files.SharedFiles
 import com.vknxworks.datectrl.data.lock.LockVault
 import com.vknxworks.datectrl.data.settings.AppSettings
 import com.vknxworks.datectrl.data.settings.SettingsRepository
@@ -13,7 +14,9 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import java.io.File
 
 /** Manual dependency container; one per process. */
 class AppContainer(val context: Context) {
@@ -60,8 +63,19 @@ class AppContainer(val context: Context) {
         AppLock.markUnlocked()
     }
 
+    /** When this process started: shared files older than that are left from an earlier run. */
+    private val startedAt = System.currentTimeMillis()
+
+    /** Removes left-over shared .ics files (an event's title, place and notes in plain text). */
+    private fun clearLeftoverSharedFiles() {
+        appScope.launch(Dispatchers.IO) {
+            runCatching { SharedFiles.clearLeftovers(File(context.cacheDir, "shared"), startedAt) }
+        }
+    }
+
     fun onLocked() {
         vault.close()
+        clearLeftoverSharedFiles()
     }
 
     fun onUnlocked() {
@@ -70,6 +84,7 @@ class AppContainer(val context: Context) {
 
     init {
         AppLock.onLocked = { onLocked() }
+        clearLeftoverSharedFiles()
     }
 }
 

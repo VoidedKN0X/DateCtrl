@@ -198,7 +198,8 @@ internal fun fileName(name: String): String =
 
 /**
  * Shares one event as an .ics file, readable only by the app you pick and only for that share. The file sits in
- * DateCtrl's private cache and is replaced on the next share.
+ * DateCtrl's private cache and is replaced on the next share; a left-over one is removed at the next start and when
+ * the app locks, once it is an hour old (AppContainer).
  */
 suspend fun shareEvent(context: Context, eventId: Long, title: String) {
     val c = context.container

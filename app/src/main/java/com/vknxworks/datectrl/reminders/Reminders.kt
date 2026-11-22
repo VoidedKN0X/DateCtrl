@@ -54,6 +54,9 @@ class ReminderActionReceiver : BroadcastReceiver() {
                     ACTION_DISMISS -> Reminders.dismiss(context.applicationContext, r)
                     ACTION_SNOOZE -> Reminders.snooze(context.applicationContext, r)
                     ACTION_REPOST -> Reminders.show(context.applicationContext, r)
+                    // A snooze kept in the calendar storage: show whatever is due now (it, unless it was already
+                    // shown when the calendar storage sent its own reminder).
+                    ACTION_SNOOZE_DUE -> Reminders.fire(context.applicationContext, System.currentTimeMillis())
                 }
             } catch (_: Throwable) {
             } finally {
@@ -66,6 +69,7 @@ class ReminderActionReceiver : BroadcastReceiver() {
         const val ACTION_DISMISS = "com.vknxworks.datectrl.REMINDER_DISMISS"
         const val ACTION_SNOOZE = "com.vknxworks.datectrl.REMINDER_SNOOZE"
         const val ACTION_REPOST = "com.vknxworks.datectrl.REMINDER_REPOST"
+        const val ACTION_SNOOZE_DUE = "com.vknxworks.datectrl.REMINDER_SNOOZE_DUE"
     }
 }
 
@@ -211,15 +215,56 @@ object Reminders {
         }
     }
 
-    /** Shows the reminder again in 10 minutes. */
+    /**
+     * Shows the reminder again in 10 minutes. Like the AOSP calendar app, the snooze is written to the calendar
+     * storage as a new scheduled alert (the shown one is marked dismissed), so it isn't lost when DateCtrl is
+     * closed or the phone restarts: the calendar storage re-sends missed alerts when it starts again, and any
+     * reminder it sends also shows a snooze that is due. An alarm wakes DateCtrl to show it as well; without
+     * calendar write access it carries the reminder itself, as before.
+     */
     fun snooze(context: Context, r: Reminder) {
         context.getSystemService(NotificationManager::class.java)?.cancel(r.notificationId)
+        val now = System.currentTimeMillis()
+        val at = now + SNOOZE_MS
+        val stored = granted(context, android.Manifest.permission.WRITE_CALENDAR) && runCatching {
+            val resolver = context.contentResolver
+            // The alert that was showing is done; the snooze is a new one.
+            resolver.update(
+                CalendarAlerts.CONTENT_URI,
+                ContentValues().apply { put(CalendarAlerts.STATE, CalendarAlerts.STATE_DISMISSED) },
+                "${CalendarAlerts.EVENT_ID}=? AND ${CalendarAlerts.BEGIN}=? AND ${CalendarAlerts.STATE}=?",
+                arrayOf(r.eventId.toString(), r.begin.toString(), CalendarAlerts.STATE_FIRED.toString()),
+            )
+            val values = ContentValues().apply {
+                for ((column, value) in snoozeAlert(r.eventId, r.begin, r.end, at, now)) put(column, value)
+            }
+            resolver.insert(CalendarAlerts.CONTENT_URI, values) != null
+        }.getOrDefault(false)
         val am = context.getSystemService(AlarmManager::class.java) ?: return
-        val at = System.currentTimeMillis() + SNOOZE_MS
-        val pi = broadcast(context, ReminderActionReceiver.ACTION_REPOST, r, 3)
+        val pi = if (stored) {
+            broadcast(context, ReminderActionReceiver.ACTION_SNOOZE_DUE, r, 3)
+        } else {
+            broadcast(context, ReminderActionReceiver.ACTION_REPOST, r, 3)
+        }
         runCatching {
             if (am.canScheduleExactAlarms()) am.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, at, pi)
             else am.setAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, at, pi)
         }
     }
+
+    /**
+     * The columns of the calendar alert a snooze adds: due at [at], scheduled, not yet received or shown (as the
+     * AOSP calendar app writes it).
+     */
+    internal fun snoozeAlert(eventId: Long, begin: Long, end: Long, at: Long, now: Long): List<Pair<String, Long>> = listOf(
+        CalendarAlerts.EVENT_ID to eventId,
+        CalendarAlerts.BEGIN to begin,
+        CalendarAlerts.END to end,
+        CalendarAlerts.ALARM_TIME to at,
+        CalendarAlerts.CREATION_TIME to now,
+        CalendarAlerts.RECEIVED_TIME to 0L,
+        CalendarAlerts.NOTIFY_TIME to 0L,
+        CalendarAlerts.STATE to CalendarAlerts.STATE_SCHEDULED.toLong(),
+        CalendarAlerts.MINUTES to 0L,
+    )
 }

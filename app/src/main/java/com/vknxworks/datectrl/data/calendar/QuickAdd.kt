@@ -97,10 +97,12 @@ object QuickAdd {
     private val NUM_DATE = Regex("^(\\d{1,2})[/.-](\\d{1,2})(?:[/.-](\\d{2}|\\d{4}))?$")
     private val ISO_DATE = Regex("^(\\d{4})-(\\d{1,2})-(\\d{1,2})$")
     private val ORDINAL = Regex("^(\\d{1,2})(?:st|nd|rd|th|e|de|ste|er)?$")
+    private val WHITESPACE = Regex("\\s+")
+    private val YEAR = Regex("^\\d{4}$")
 
     /** [text] read on [today]; [now] decides whether a time without a day is today or tomorrow. Null for an empty sentence. */
     fun parse(text: String, today: LocalDate, now: LocalTime? = null): QuickEvent? {
-        val words = text.trim().split(Regex("\\s+")).filter { it.isNotEmpty() }
+        val words = text.trim().split(WHITESPACE).filter { it.isNotEmpty() }
         if (words.isEmpty()) return null
         // Matching ignores case and a trailing comma or full stop ("friday," "14:00.").
         // A typographic apostrophe counts as a plain one ("aujourd’hui").
@@ -198,13 +200,13 @@ object QuickAdd {
         val next = low.getOrNull(i + 1)
         if (dayNum != null && next != null && MONTHS[next] != null) {
             val month = MONTHS[next]!!
-            val y = low.getOrNull(i + 2)?.takeIf { it.matches(Regex("^\\d{4}$")) }
+            val y = low.getOrNull(i + 2)?.takeIf { it.matches(YEAR) }
             return if (y != null) safe(y.toInt(), month, dayNum)?.let { it to 3 } else upcoming(dayNum, month, today)?.let { it to 2 }
         }
         val month = MONTHS[w]
         val d2 = next?.let { ORDINAL.matchEntire(it)?.groupValues?.get(1)?.toInt() }
         if (month != null && d2 != null) {
-            val y = low.getOrNull(i + 2)?.takeIf { it.matches(Regex("^\\d{4}$")) }
+            val y = low.getOrNull(i + 2)?.takeIf { it.matches(YEAR) }
             return if (y != null) safe(y.toInt(), month, d2)?.let { it to 3 } else upcoming(d2, month, today)?.let { it to 2 }
         }
         return null
