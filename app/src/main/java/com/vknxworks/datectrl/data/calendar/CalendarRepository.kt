@@ -17,6 +17,7 @@ import android.provider.CalendarContract.Instances
 import android.provider.CalendarContract.Reminders
 import androidx.core.content.ContextCompat
 import kotlinx.coroutines.CoroutineScope
+import com.vknxworks.datectrl.reminders.Snoozes
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
@@ -393,7 +394,7 @@ class CalendarRepository(private val context: Context, private val scope: Corout
                 e.id,
             )
             resolver.delete(uri, null, null) > 0
-        }.getOrDefault(false)
+        }.getOrDefault(false).also { if (it) runCatching { Snoozes.cancelEvent(context, e.id) } }
     }
 
     /**
@@ -406,7 +407,7 @@ class CalendarRepository(private val context: Context, private val scope: Corout
                 ContentUris.withAppendedId(Events.CONTENT_URI, e.id),
                 ContentValues().apply { put(Events.STATUS, Events.STATUS_CANCELED) }, null, null,
             ) > 0
-        }.getOrDefault(false)
+        }.getOrDefault(false).also { if (it) runCatching { Snoozes.cancelEvent(context, e.id) } }
     }
 
     /** Cancels one occurrence of a repeating event; the others stay. */
@@ -417,7 +418,7 @@ class CalendarRepository(private val context: Context, private val scope: Corout
                 put(Events.STATUS, Events.STATUS_CANCELED)
             }
             resolver.insert(ContentUris.withAppendedId(Events.CONTENT_EXCEPTION_URI, series.id), v) != null
-        }.getOrDefault(false)
+        }.getOrDefault(false).also { if (it) runCatching { Snoozes.cancel(context, series.id, instanceBegin) } }
     }
 
     // ---------- Calendars ----------

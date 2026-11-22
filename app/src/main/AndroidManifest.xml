@@ -12,6 +12,12 @@
     <uses-permission android:name="android.permission.WRITE_CALENDAR" />
     <!-- Event reminders. -->
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+    <!-- Snoozed reminders on time: an exact alarm at the snooze time. Allowed for calendar apps, granted at install,
+         no prompt (unlike SCHEDULE_EXACT_ALARM / "Alarms & reminders"). -->
+    <uses-permission android:name="android.permission.USE_EXACT_ALARM" />
+    <!-- Snoozed reminders after a restart: Android forgets alarms and the calendar storage removes scheduled
+         snoozes when the phone starts, so DateCtrl sets them again at start-up. -->
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
     <!-- Fingerprint unlock for the app lock. -->
     <uses-permission android:name="android.permission.USE_BIOMETRIC" />
     <!-- Hides other apps' floating windows while the lock, PIN and delete confirmations are on screen
@@ -128,6 +134,16 @@
             <intent-filter>
                 <action android:name="android.intent.action.EVENT_REMINDER" />
                 <data android:scheme="content" />
+            </intent-filter>
+        </receiver>
+
+        <!-- Phone started or DateCtrl updated: sets snooze alarms again. Only the system sends these. -->
+        <receiver
+            android:name=".reminders.SnoozeRestoreReceiver"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+                <action android:name="android.intent.action.MY_PACKAGE_REPLACED" />
             </intent-filter>
         </receiver>
 

@@ -1,6 +1,5 @@
 package com.vknxworks.datectrl.reminders
 
-import android.app.AlarmManager
 import android.app.Notification
 import android.app.NotificationChannel
 import android.app.NotificationManager
@@ -34,6 +33,9 @@ class ReminderReceiver : BroadcastReceiver() {
         Thread {
             try {
                 Reminders.fire(context.applicationContext, alarmTime)
+                // Any calendar broadcast is also a chance to set lost snooze alarms again (DateCtrl was force-stopped,
+                // or the phone started and the restart broadcast hasn't come yet).
+                Snoozes.rearm(context.applicationContext)
             } catch (_: Throwable) {
                 // A broken calendar provider must never crash the app.
             } finally {
@@ -53,10 +55,17 @@ class ReminderActionReceiver : BroadcastReceiver() {
                 when (intent.action) {
                     ACTION_DISMISS -> Reminders.dismiss(context.applicationContext, r)
                     ACTION_SNOOZE -> Reminders.snooze(context.applicationContext, r)
+                    // Left from DateCtrl 0.6.1 and older (a snooze without calendar write access).
                     ACTION_REPOST -> Reminders.show(context.applicationContext, r)
-                    // A snooze kept in the calendar storage: show whatever is due now (it, unless it was already
-                    // shown when the calendar storage sent its own reminder).
-                    ACTION_SNOOZE_DUE -> Reminders.fire(context.applicationContext, System.currentTimeMillis())
+                    ACTION_SNOOZE_DUE -> {
+                        val at = intent.getLongExtra(Snoozes.EXTRA_AT, 0L)
+                        if (at > 0) {
+                            Snoozes.alarm(context.applicationContext, r.eventId, r.begin, at)
+                        } else {
+                            // An alarm set by DateCtrl 0.6.1: show whatever is due now.
+                            Reminders.fire(context.applicationContext, System.currentTimeMillis())
+                        }
+                    }
                 }
             } catch (_: Throwable) {
             } finally {
@@ -75,6 +84,9 @@ class ReminderActionReceiver : BroadcastReceiver() {
 
 object Reminders {
     const val CHANNEL = "reminders"
+
+    /** Set on the notification's open intent, so opening a reminder cancels a snooze waiting for it. */
+    const val EXTRA_FROM_REMINDER = "com.vknxworks.datectrl.FROM_REMINDER"
     private const val SNOOZE_MS = 10 * 60_000L
 
     data class Reminder(val eventId: Long, val begin: Long, val end: Long, val title: String, val location: String, val allDay: Boolean) {
@@ -99,7 +111,7 @@ object Reminders {
     private fun granted(context: Context, p: String) = ContextCompat.checkSelfPermission(context, p) == PackageManager.PERMISSION_GRANTED
 
     /** "Event reminders" in Settings; read straight from the settings file (the app may not be running). */
-    private fun enabled(context: Context): Boolean = runCatching {
+    internal fun enabled(context: Context): Boolean = runCatching {
         runBlocking { context.appDataStore.data.first()[booleanPreferencesKey("reminders")] ?: true }
     }.getOrDefault(true)
 
@@ -119,13 +131,13 @@ object Reminders {
         val resolver = context.contentResolver
         val proj = arrayOf(
             CalendarAlerts._ID, CalendarAlerts.EVENT_ID, CalendarAlerts.BEGIN, CalendarAlerts.END,
-            CalendarAlerts.TITLE, CalendarAlerts.EVENT_LOCATION, CalendarAlerts.ALL_DAY,
+            CalendarAlerts.TITLE, CalendarAlerts.EVENT_LOCATION, CalendarAlerts.ALL_DAY, CalendarAlerts.ALARM_TIME,
         )
         val now = System.currentTimeMillis()
         // EVENT_REMINDER can be sent by any app, so the time in it is only trusted up to a minute ahead: a made-up
         // time far in the future must not show (and mark as shown) reminders that aren't due yet.
         val upTo = minOf(maxOf(alarmTime, now), now + 60_000L)
-        val due = ArrayList<Pair<Long, Reminder>>()
+        val due = ArrayList<Triple<Long, Reminder, Long>>()
         resolver.query(
             CalendarAlerts.CONTENT_URI, proj,
             "${CalendarAlerts.STATE}=? AND ${CalendarAlerts.ALARM_TIME}<=?",
@@ -133,13 +145,15 @@ object Reminders {
             "${CalendarAlerts.BEGIN} ASC",
         )?.use { c ->
             while (c.moveToNext()) {
-                due += c.getLong(0) to Reminder(
-                    c.getLong(1), c.getLong(2), c.getLong(3), c.getString(4).orEmpty(), c.getString(5).orEmpty(), c.getInt(6) != 0,
+                due += Triple(
+                    c.getLong(0),
+                    Reminder(c.getLong(1), c.getLong(2), c.getLong(3), c.getString(4).orEmpty(), c.getString(5).orEmpty(), c.getInt(6) != 0),
+                    c.getLong(7),
                 )
             }
         }
         val canWrite = granted(context, android.Manifest.permission.WRITE_CALENDAR)
-        for ((alertId, r) in due) {
+        for ((alertId, r, alertTime) in due) {
             // An event that has already ended only gets a reminder if it ended in the last hour (the phone was off).
             if (show && r.end > now - 3_600_000L) show(context, r)
             if (canWrite) {
@@ -154,6 +168,8 @@ object Reminders {
                     )
                 }
             }
+            // If this was a snooze, it's shown now: its own alarm isn't needed any more.
+            Snoozes.shown(context, r.eventId, r.begin, alertTime)
         }
     }
 
@@ -174,6 +190,7 @@ object Reminders {
                 .setData(ContentUris.withAppendedId(CalendarContract.Events.CONTENT_URI, r.eventId))
                 .putExtra(CalendarContract.EXTRA_EVENT_BEGIN_TIME, r.begin)
                 .putExtra(CalendarContract.EXTRA_EVENT_END_TIME, r.end)
+                .putExtra(EXTRA_FROM_REMINDER, true)
                 .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK),
             PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT,
         )
@@ -204,6 +221,7 @@ object Reminders {
 
     fun dismiss(context: Context, r: Reminder) {
         context.getSystemService(NotificationManager::class.java)?.cancel(r.notificationId)
+        Snoozes.cancel(context, r.eventId, r.begin)
         if (!granted(context, android.Manifest.permission.WRITE_CALENDAR)) return
         runCatching {
             context.contentResolver.update(
@@ -217,39 +235,25 @@ object Reminders {
 
     /**
      * Shows the reminder again in 10 minutes. Like the AOSP calendar app, the snooze is written to the calendar
-     * storage as a new scheduled alert (the shown one is marked dismissed), so it isn't lost when DateCtrl is
-     * closed or the phone restarts: the calendar storage re-sends missed alerts when it starts again, and any
-     * reminder it sends also shows a snooze that is due. An alarm wakes DateCtrl to show it as well; without
-     * calendar write access it carries the reminder itself, as before.
+     * storage as a new scheduled alert (the shown one is marked dismissed). An exact alarm (USE_EXACT_ALARM) wakes
+     * DateCtrl at the snooze time; DateCtrl also remembers the snooze so it can set the alarm again after a restart
+     * (see [Snoozes]). Without calendar write access only the alarm and the record carry it.
      */
     fun snooze(context: Context, r: Reminder) {
         context.getSystemService(NotificationManager::class.java)?.cancel(r.notificationId)
         val now = System.currentTimeMillis()
-        val at = now + SNOOZE_MS
-        val stored = granted(context, android.Manifest.permission.WRITE_CALENDAR) && runCatching {
-            val resolver = context.contentResolver
-            // The alert that was showing is done; the snooze is a new one.
-            resolver.update(
-                CalendarAlerts.CONTENT_URI,
-                ContentValues().apply { put(CalendarAlerts.STATE, CalendarAlerts.STATE_DISMISSED) },
-                "${CalendarAlerts.EVENT_ID}=? AND ${CalendarAlerts.BEGIN}=? AND ${CalendarAlerts.STATE}=?",
-                arrayOf(r.eventId.toString(), r.begin.toString(), CalendarAlerts.STATE_FIRED.toString()),
-            )
-            val values = ContentValues().apply {
-                for ((column, value) in snoozeAlert(r.eventId, r.begin, r.end, at, now)) put(column, value)
+        if (granted(context, android.Manifest.permission.WRITE_CALENDAR)) {
+            runCatching {
+                // The alert that was showing is done; the snooze is a new one.
+                context.contentResolver.update(
+                    CalendarAlerts.CONTENT_URI,
+                    ContentValues().apply { put(CalendarAlerts.STATE, CalendarAlerts.STATE_DISMISSED) },
+                    "${CalendarAlerts.EVENT_ID}=? AND ${CalendarAlerts.BEGIN}=? AND ${CalendarAlerts.STATE}=?",
+                    arrayOf(r.eventId.toString(), r.begin.toString(), CalendarAlerts.STATE_FIRED.toString()),
+                )
             }
-            resolver.insert(CalendarAlerts.CONTENT_URI, values) != null
-        }.getOrDefault(false)
-        val am = context.getSystemService(AlarmManager::class.java) ?: return
-        val pi = if (stored) {
-            broadcast(context, ReminderActionReceiver.ACTION_SNOOZE_DUE, r, 3)
-        } else {
-            broadcast(context, ReminderActionReceiver.ACTION_REPOST, r, 3)
         }
-        runCatching {
-            if (am.canScheduleExactAlarms()) am.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, at, pi)
-            else am.setAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, at, pi)
-        }
+        Snoozes.snooze(context, r, now + SNOOZE_MS, now)
     }
 
     /**

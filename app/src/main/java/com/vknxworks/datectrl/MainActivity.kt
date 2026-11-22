@@ -50,7 +50,17 @@ class MainActivity : ComponentActivity() {
             container.pending.value = Launch.Import(expected)
             return
         }
-        Launch.from(intent)?.let { container.pending.value = it }
+        val launch = Launch.from(intent)
+        launch?.let { container.pending.value = it }
+        // Opened from a reminder: a snooze still waiting for that occurrence is no longer needed.
+        val begin: Long? = (launch as? Launch.ShowEvent)?.begin
+        if (launch is Launch.ShowEvent && begin != null &&
+            intent?.getBooleanExtra(com.vknxworks.datectrl.reminders.Reminders.EXTRA_FROM_REMINDER, false) == true
+        ) {
+            val app = applicationContext
+            val id = launch.id
+            Thread { runCatching { com.vknxworks.datectrl.reminders.Snoozes.cancel(app, id, begin) } }.start()
+        }
     }
 }
 

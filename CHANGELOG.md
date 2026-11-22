@@ -4,6 +4,24 @@ What changed in each DateCtrl release. Every release on the [Releases page](http
 
 To publish a new version: bump `versionCode` and `versionName` in `app/build.gradle.kts`, add a section here, and push to `main`. Pushes without a version bump only build; they don't make a release.
 
+## Unreleased
+
+Built and checked by CI only: nothing here has been run on a phone yet.
+
+### Fixed
+
+- **A snoozed reminder now comes back exactly 10 minutes later.** Before, Android could show it up to about 10 minutes late, because DateCtrl could only set an inexact alarm. DateCtrl now uses an exact alarm for each snooze, which also goes off while the phone is idle. If Android ever refuses exact alarms for DateCtrl, it falls back to the old, inexact timing.
+- **A snoozed reminder now survives a phone restart.** 0.6.1 said a snooze kept in the phone's calendar storage would come back after a restart, but the calendar storage actually removes waiting (not yet shown) reminders, snoozes included, every time the phone starts, and only recreates the reminders that belong to events. DateCtrl now keeps its own short list of waiting snoozes (only the event number and times, never the title, place or notes) and, when the phone has started, sets their alarms again and writes them back into the calendar storage. A snooze that came due while the phone was off is shown straight away (unless the event ended more than an hour ago). The same happens when DateCtrl is updated, when it starts, and whenever a calendar reminder comes in, so snoozes also come back after DateCtrl was force-stopped.
+- **A snooze is cancelled when it's no longer needed.** Dismissing or swiping away a reminder, opening it, or deleting the event (or that one occurrence) in DateCtrl now also cancels a snooze still waiting for it, so it doesn't pop up later. A snooze for an event deleted in another app isn't shown either. Snoozing the same reminder again replaces the earlier snooze. A snooze is never shown twice, even when the calendar storage's own reminder and DateCtrl's alarm both go off.
+
+### Security
+
+- **Two new permissions, both granted at install without a prompt.** "Exact alarms" (`USE_EXACT_ALARM`), which Android allows calendar and alarm apps to have, so snoozes are on time; and "Run at startup" (`RECEIVE_BOOT_COMPLETED`), so DateCtrl can set snooze alarms again after a restart. At startup DateCtrl only reads its list of waiting snoozes (usually empty) and stops. DateCtrl still has no internet permission.
+
+### Project
+
+- **Tests** for the snooze decisions: exact or inexact alarm, the saved snooze list (format, broken entries, at most 50), what to do after a restart (set again, write back, show now, forget) and when a due snooze is shown (`SnoozePlanTest`, 12 tests, run on a computer with the Kotlin compiler: all pass).
+
 ## v0.6.1 (2026-11-22)
 
 Built and checked by CI only: nothing in this release had been run on a phone when it was published.

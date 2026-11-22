@@ -18,7 +18,7 @@ Part of the [Ctrl series](#the-ctrl-series) by VKNXWorks.
 - **Quick add:** type "dentist friday 14:00", "tandarts vrijdag om 14u", "dentiste vendredi à 14h30" or "Zahnarzt Freitag um 14 Uhr" (English, Dutch, French or German), check what it understood and finish in the editor. Read on the phone, never sent anywhere
 - **Events** with title, all-day or start and end time, repeat (daily, weekly, monthly, yearly, or custom: every N days, weeks, months or years, until a date or a number of times; other repeats from other apps are kept), its own time zone, calendar, place, description and up to five reminders from 5 minutes to 2 weeks before or a custom time up to 4 weeks. A warning shows when it overlaps another event. Repeating events can be changed or deleted for one occurrence or the whole series
 - **Event details:** time, calendar, repeat, place (opens in your maps app), description, reminders and the guest list with replies
-- **Reminders** as notifications with Snooze (10 minutes, kept in the phone's calendar storage so a restart doesn't lose it) and Dismiss; on the lock screen they show the event only when your phone allows private notification content
+- **Reminders** as notifications with Snooze (10 minutes, on time, and still there after a restart) and Dismiss; on the lock screen they show the event only when your phone allows private notification content
 - **Calendars:** show or hide each calendar, grouped by account; add, rename, recolour and delete calendars on this phone
 - **Works with other apps:** "Add to calendar" buttons, event links and "open this day" from other apps open DateCtrl
 - **Import and export .ics files:** import an .ics file (from the file picker, or opened or shared from another app) into the calendar you pick, after seeing what's in it, with events already in that calendar skipped; export a whole calendar or a date range as an .ics file, or share one event
@@ -78,6 +78,8 @@ Settings and About are behind your profile picture at the top right of every tab
 | Read your calendar (`READ_CALENDAR`) | Showing your events and calendars, and the reminders that are due. |
 | Add or change calendar events (`WRITE_CALENDAR`) | Saving the events and calendars you add, change or delete, and marking reminders as shown, snoozed or dismissed. |
 | Notifications (`POST_NOTIFICATIONS`) | Event reminders. |
+| Exact alarms (`USE_EXACT_ALARM`) | Showing a snoozed reminder at the exact snooze time, also when the phone is idle. Allowed for calendar apps; granted at install, no prompt. |
+| Run at startup (`RECEIVE_BOOT_COMPLETED`) | Setting snooze alarms again after the phone restarts (Android forgets them). DateCtrl only reads its own list of waiting snoozes then; nothing runs in the background. |
 | Use biometric hardware (`USE_BIOMETRIC`) | Optional fingerprint unlock for the app lock. |
 | Hide other apps' floating windows (`HIDE_OVERLAY_WINDOWS`) | Hide other apps' floating windows over the PIN screen (and the app lock's other screens and delete confirmations), so nothing can be drawn over them. Granted at install, no prompt. |
 
